@@ -17,8 +17,8 @@ export const UI_HIDE_DELAY = 2200;
 // accelerate noticeably. The multiplier is still capped at AUTOSCROLL_MAX_MULT.
 export const AUTOSCROLL_SPEED = 9;       // px per second at the smallest size
 export const AUTOSCROLL_SPEED_EXP = 3;  // >1 makes large sizes scroll steeper than the raw font ratio
-export const AUTOSCROLL_MAX_MULT = 10;    // safety ceiling on the size multiplier
-export const AUTOSCROLL_RESUME_DELAY = 50;  // ms of quiet before resuming after a manual scroll — almost instant
+export const AUTOSCROLL_MAX_MULT = 9;    // safety ceiling on the size multiplier
+export const AUTOSCROLL_RESUME_DELAY = 500;  // ms of quiet before resuming after a manual scroll — almost instant
 export const AUTOSCROLL_TAP_DELAY = 4000;    // ms to stay paused after a deliberate tap/click, so the reader can dwell on a verse
 export const AUTOSCROLL_RAMP = 500;      // ms to ease from a standstill up to full speed
 

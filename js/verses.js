@@ -92,13 +92,14 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
-  // The drift was frozen on pointerdown; decide how soon it resumes.
-  // A scroll/drag (or long press) resumes almost instantly; a deliberate
-  // tap holds the pause longer so the reader can dwell on a verse.
-  if (moved || Date.now() - startT > TIME_TOLERANCE) {
-    nudgeAutoScroll(); // fast resume — default delay
-    return;
-  }
+  // A scroll/drag (or long press) is owned by autoscroll.js's direction-aware
+  // handlers: a forward move resumes almost instantly, while scrolling up is a
+  // deliberate stop that stays paused. We must NOT nudge here, or an upward
+  // drag would resume on its own and defeat that stop.
+  if (moved || Date.now() - startT > TIME_TOLERANCE) return;
+
+  // A deliberate tap always brings the drift back (even from an upward stop),
+  // after a longer dwell so the reader can sit on a verse.
   nudgeAutoScroll(AUTOSCROLL_TAP_DELAY);
 
   const target = e.target;

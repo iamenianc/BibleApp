@@ -118,8 +118,8 @@ export function nudgeAutoScroll(delay = AUTOSCROLL_RESUME_DELAY) {
 }
 
 // A backward (upward) move is a deliberate stop: pause and stay paused until
-// the reader scrolls forward again. A forward move just nudges (resumes after
-// the usual quiet period). `dy < 0` means moving up.
+// the reader scrolls forward again or taps/clicks. A forward move just nudges
+// (resumes after the usual quiet period). `dy < 0` means moving up.
 function reactToManualMove(dy) {
   if (dy < 0) pauseAutoScroll();
   else nudgeAutoScroll();
@@ -186,11 +186,14 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd() {
+  // A near-stationary release is a tap, not a scroll — leave it to verses.js,
+  // which owns the tap's resume. Reacting here on the finger's noise velocity
+  // would randomly read as a tiny upward flick and pause indefinitely, killing
+  // the tap-resume that's about to be scheduled (the "resumes only sometimes").
+  if (Math.abs(touchVel) < 0.02) return;
   // A backward (upward) flick is a deliberate stop — pause and stay paused.
   // A forward flick nudges and resumes after the usual quiet period.
   reactToManualMove(touchVel);
-  // Glide to a stop from the finger's last velocity (skip if barely moving).
-  if (Math.abs(touchVel) < 0.02) return;
   let v = touchVel;
   let last = performance.now();
   const decay = 0.0025; // higher = stops sooner
