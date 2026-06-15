@@ -4,7 +4,7 @@
 //   SHELL — the app's own files (cache-first, refreshed on activate)
 //   DATA  — helloao API responses (stale-while-revalidate, grows as you read)
 
-const VERSION = "v10";
+const VERSION = "v13";
 const SHELL_CACHE = `theword-shell-${VERSION}`;
 const DATA_CACHE = `theword-data-${VERSION}`;
 const API_HOST = "bible.helloao.org";
@@ -17,12 +17,15 @@ const SHELL_ASSETS = [
   "./css/reader.css",
   "./css/chrome.css",
   "./css/picker.css",
+  "./fonts/AtkinsonHyperlegibleNext.ttf",
+  "./fonts/AtkinsonHyperlegibleNext-Italic.ttf",
   "./js/config.js",
   "./js/dom.js",
   "./js/api.js",
   "./js/store.js",
   "./js/status.js",
   "./js/render.js",
+  "./js/scroll.js",
   "./js/chrome.js",
   "./js/picker.js",
   "./js/textsize.js",

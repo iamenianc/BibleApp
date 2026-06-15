@@ -12,23 +12,35 @@
   padding: 30vh max(1.6rem, calc((100% - 38rem) / 2 + 1.6rem)) 55vh;
 
   /* soothing pixel-level fade: transparent at the edges, opaque in the
-     central reading band. Text passes through this gradient as you scroll. */
-  --fade: 22vh;
+     reading band. Text passes through this gradient as you scroll.
+     The opaque band sits high — it ends around the top third (≈40vh) and the
+     bottom fade runs the rest of the way, so the eye rests in the upper screen. */
+  --fade-top: 18vh;
+  --fade-bottom: 60vh;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    #000 var(--fade),
-    #000 calc(100% - var(--fade)),
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
     transparent 100%
   );
           mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    #000 var(--fade),
-    #000 calc(100% - var(--fade)),
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
     transparent 100%
   );
+
+  /* hide the scrollbar entirely (still scrollable) */
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* old Edge/IE */
 }
+/* WebKit/Blink (Safari, Chrome) */
+#reader::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* Each chapter is appended as its own section for seamless scroll. */
+.chapter + .chapter { margin-top: 4rem; }
 
 .chapter-label {
   font-family: var(--sans);
@@ -38,6 +50,21 @@
   color: var(--dim);
   text-align: center;
   margin-bottom: 3.5rem;
+}
+/* the divider above every chapter after the first */
+.chapter + .chapter .chapter-label {
+  position: relative;
+  padding-top: 3.5rem;
+}
+.chapter + .chapter .chapter-label::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2rem;
+  height: 1px;
+  background: var(--faint);
 }
 
 /* Psalm superscriptions etc. — part of the text, kept (unlike editorial headings). */
@@ -83,6 +110,18 @@
   background: rgba(185, 180, 168, 0.10);
 }
 
+/* In poetry, highlight the individual lines (hugging their text) rather than
+   the whole stanza as one block. */
+.flow.poetry .verse.revealed { background: none; }
+.flow.poetry .poem-line {
+  border-radius: 0.2em;
+  transition: background-color 0.3s ease;
+}
+.flow.poetry .verse.revealed .poem-line {
+  width: fit-content;       /* highlight hugs the text, not the full column */
+  background: rgba(185, 180, 168, 0.10);
+}
+
 /* Verse number revealed on deliberate tap; fully collapsed otherwise so it
    leaves no phantom indent at the start of a line. */
 .vnum {
@@ -109,13 +148,13 @@
 /* Each verse starts on its own line, with its number inline at the very start
    of that first line (no indent). The number sits beside the first words so it
    clearly belongs to the verse it begins. */
-#reader.always-verses .verse {
+.chapter.always-verses .verse {
   display: block;
   margin-bottom: 0.55rem;
 }
-#reader.always-verses .verse:last-child { margin-bottom: 0; }
+.chapter.always-verses .verse:last-child { margin-bottom: 0; }
 
-#reader.always-verses .vnum {
+.chapter.always-verses .vnum {
   display: inline;          /* sits in line with the first words */
   max-width: none;
   overflow: visible;
@@ -128,8 +167,8 @@
 /* Keep the first poem line on the same line as the number, then let the
    remaining poem lines break normally beneath it. (.poem-line-first is set in
    render.js; :first-of-type can't be used because .vnum is also a span.) */
-#reader.always-verses .verse .poem-line { display: block; }
-#reader.always-verses .verse .poem-line-first { display: inline; }
+.chapter.always-verses .verse .poem-line { display: block; }
+.chapter.always-verses .verse .poem-line-first { display: inline; }
 
 .fn {
   font-family: var(--sans);

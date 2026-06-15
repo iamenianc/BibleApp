@@ -3,73 +3,50 @@
 import { els } from "./dom.js";
 import { fetchBooks, fetchChapter } from "./api.js";
 import { saveLast, loadLast } from "./store.js";
-import { renderChapter } from "./render.js";
 import { initChrome, revealUI } from "./chrome.js";
+import { initFeed, startFeed } from "./scroll.js";
 import { openBooks, closeOverlay } from "./picker.js";
 import { showStatus, hideStatus } from "./status.js";
 import { registerSW } from "./pwa.js";
 import { initTextSize } from "./textsize.js";
-import { initVerseReveal, resetReveal } from "./verses.js";
+import { initVerseReveal } from "./verses.js";
 
 let books = [];
-let chapterData = null; // most recent chapter payload (holds prev/next links)
 
-/** Load, render, and remember a chapter. */
-async function loadChapter(bookId, chapter) {
+/** Jump to a specific chapter (from the picker), starting a fresh feed. */
+async function goTo(bookId, chapter) {
   showStatus("…");
   try {
     const data = await fetchChapter(bookId, chapter);
-    chapterData = data;
-    resetReveal();
-
-    const bookName = renderChapter(data, books);
-    els.ref.textContent = `${bookName} ${data.chapter.number}`;
-
-    els.prev.disabled = !data.previousChapterApiLink;
-    els.next.disabled = !data.nextChapterApiLink;
-
-    els.reader.scrollTop = 0;
-
+    startFeed(data);
+    const name = data.book.commonName || data.book.name || bookId;
+    els.ref.textContent = `${name} ${data.chapter.number}`;
     saveLast({ book: data.book.id, chapter: data.chapter.number });
     hideStatus();
     revealUI();
   } catch (err) {
     console.error(err);
-    showStatus("Couldn't load that chapter", () =>
-      loadChapter(bookId, chapter)
-    );
+    showStatus("Couldn't load that chapter", () => goTo(bookId, chapter));
   }
-}
-
-/** Parse an API link like /api/BSB/GEN/2.json and navigate to it. */
-function navByApiLink(link) {
-  if (!link) return;
-  const m = link.match(/\/([A-Z0-9]+)\/(\d+)\.json/);
-  if (m) loadChapter(m[1], parseInt(m[2], 10));
 }
 
 function wireEvents() {
   initChrome();
   initTextSize();
   initVerseReveal();
+  // live-update the reference and remembered position as chapters scroll past
+  initFeed(books, ({ book, bookName, chapter }) => {
+    els.ref.textContent = `${bookName} ${chapter}`;
+    saveLast({ book, chapter: Number(chapter) });
+  });
 
-  els.ref.addEventListener("click", () => openBooks(books, loadChapter));
+  els.ref.addEventListener("click", () => openBooks(books, goTo));
   els.overlayClose.addEventListener("click", closeOverlay);
 
-  els.prev.addEventListener("click", () =>
-    navByApiLink(chapterData && chapterData.previousChapterApiLink)
-  );
-  els.next.addEventListener("click", () =>
-    navByApiLink(chapterData && chapterData.nextChapterApiLink)
-  );
-
   window.addEventListener("keydown", (e) => {
-    if (els.overlay.classList.contains("open")) {
-      if (e.key === "Escape") closeOverlay();
-      return;
+    if (els.overlay.classList.contains("open") && e.key === "Escape") {
+      closeOverlay();
     }
-    if (e.key === "ArrowRight") els.next.click();
-    if (e.key === "ArrowLeft") els.prev.click();
   });
 }
 
@@ -78,7 +55,8 @@ async function init() {
   try {
     books = await fetchBooks();
     const start = loadLast();
-    await loadChapter(start.book, start.chapter);
+    wireEvents();
+    await goTo(start.book, start.chapter);
   } catch (err) {
     console.error(err);
     showStatus("Couldn't reach the library", init);
@@ -86,5 +64,4 @@ async function init() {
 }
 
 registerSW();
-wireEvents();
 init();

@@ -11,8 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" />
+  <link rel="preload" href="fonts/AtkinsonHyperlegibleNext.ttf" as="font" type="font/ttf" crossorigin />
 
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/reader.css" />
@@ -28,11 +27,6 @@
   </header>
 
   <main id="reader" aria-live="polite"></main>
-
-  <nav id="footnav">
-    <button class="nav-arrow" id="prev-btn">‹ Prev</button>
-    <button class="nav-arrow" id="next-btn">Next ›</button>
-  </nav>
 
   <div id="overlay" role="dialog" aria-modal="true">
     <div class="overlay-head">

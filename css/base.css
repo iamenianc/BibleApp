@@ -1,5 +1,22 @@
 /* base.css — tokens, reset, global shell */
 
+/* Atkinson Hyperlegible Next — legibility-optimized reading face.
+   Variable weight axis; one file for upright, one for italic. */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../fonts/AtkinsonHyperlegibleNext.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../fonts/AtkinsonHyperlegibleNext-Italic.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --bg: #000000;
   --fg: #e8e6e1;
@@ -7,12 +24,12 @@
   --faint: #2a2926;
   --accent: #b9b4a8;
 
-  /* Comic Neue for the reading surface; rounded sans fallbacks for offline. */
-  --reading: "Comic Neue", "Comic Sans MS", "Segoe Print", ui-rounded, system-ui, sans-serif;
-  --sans: ui-sans-serif, system-ui, sans-serif;
+  /* Reading face + UI face both use Atkinson Hyperlegible Next. */
+  --reading: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, sans-serif;
 
-  /* Reading text size — driven by 5 levels (default 3). Set on <html>. */
-  --read-size: 1.32rem;
+  /* Reading text size — driven by 9 levels (default 5). Set on <html>. */
+  --read-size: 1.42rem;
 }
 
 * {

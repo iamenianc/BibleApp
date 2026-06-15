@@ -1,10 +1,22 @@
-// textsize.js — 5 reading-size levels (default 3), persisted
+// textsize.js — 9 reading-size levels (default 5), persisted
+// Levels span very small → very large; 5 is the comfortable middle.
 
 import { els } from "./dom.js";
+import { keepUIAlive } from "./chrome.js";
 
 const SIZE_KEY = "theword:size";
-const LEVELS = ["1.04rem", "1.18rem", "1.32rem", "1.5rem", "1.72rem"];
-const DEFAULT_LEVEL = 3; // 1-based
+const LEVELS = [
+  "0.86rem", // 1  very small
+  "0.98rem", // 2
+  "1.12rem", // 3
+  "1.26rem", // 4
+  "1.42rem", // 5  default
+  "1.62rem", // 6
+  "1.86rem", // 7
+  "2.14rem", // 8
+  "2.5rem",  // 9  very large
+];
+const DEFAULT_LEVEL = 5; // 1-based, the middle
 const MIN = 1;
 const MAX = LEVELS.length;
 
@@ -41,6 +53,7 @@ export function initTextSize() {
   level = saved;
   apply();
 
-  els.sizeDown.addEventListener("click", () => setLevel(level - 1));
-  els.sizeUp.addEventListener("click", () => setLevel(level + 1));
+  // Each tap keeps the bar from fading while the reader is dialing size in.
+  els.sizeDown.addEventListener("click", () => { setLevel(level - 1); keepUIAlive(); });
+  els.sizeUp.addEventListener("click", () => { setLevel(level + 1); keepUIAlive(); });
 }

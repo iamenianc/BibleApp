@@ -1,4 +1,7 @@
-/* chrome.css — top bar + bottom nav that auto-hide while reading */
+/* chrome.css — top bar that auto-hides while reading.
+   Controls are styled as Apple-style "liquid glass": translucent frosted
+   fills with backdrop blur + saturation, a soft top sheen, and a thin
+   light rim that reads as a glass edge. */
 
 #topbar {
   position: fixed;
@@ -9,63 +12,141 @@
   justify-content: center;
   gap: 0.6rem;
   padding: calc(env(safe-area-inset-top) + 0.7rem) 1rem 0.7rem;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0));
+  /* lighter scrim — the glass controls carry the contrast now */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0));
   transition: opacity 0.5s ease, transform 0.5s ease;
   pointer-events: none;
 }
 #topbar > * { pointer-events: auto; }
 #topbar.hidden { opacity: 0; transform: translateY(-110%); }
 
+/* Shared liquid-glass surface for every control in the bar.
+   Modeled on iOS "Liquid Glass": a bright, lensy translucent puck with a
+   heavy backdrop blur, a glossy top sheen, and a bright curved edge that
+   catches light like a real glass bead. */
+.ref-btn,
+.size-btn {
+  position: relative;
+  isolation: isolate;
+  color: var(--fg);
+  /* faint vertical tint so the puck reads as a lens, lighter at the top.
+     Kept very low (~40-50% glass opacity) so the controls are mostly see-through. */
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.09),
+      rgba(255, 255, 255, 0.02)
+    );
+  -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(1.15);
+  backdrop-filter: blur(28px) saturate(200%) brightness(1.15);
+  border: 1px solid transparent;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),    /* crisp top edge of the bead */
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.30),       /* shaded underside */
+    inset 0 0 12px rgba(255, 255, 255, 0.10),     /* inner glow / volume */
+    0 4px 16px rgba(0, 0, 0, 0.45);               /* soft drop, lifts off text */
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    color 0.3s ease,
+    transform 0.18s ease,
+    opacity 0.3s ease;
+}
+
+/* Bright curved edge — a light-catching rim painted as a conic ring so it's
+   strongest at the top-left and bottom-right, like a glass bevel. */
+.ref-btn::after,
+.size-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 210deg,
+    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.05) 75%,
+    rgba(255, 255, 255, 0.65)
+  );
+  /* mask so the gradient only paints the 1px border, not the fill */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Glossy specular sheen across the upper half of the glass. */
+.ref-btn::before,
+.size-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.24),
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ref-btn:active,
+.size-btn:active {
+  transform: scale(0.95);
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0.04)
+    );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.70),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.35),
+    inset 0 0 16px rgba(255, 255, 255, 0.16),
+    0 2px 10px rgba(0, 0, 0, 0.40);
+}
+
 .ref-btn {
   font-family: var(--sans);
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
   padding: 0.45rem 0.9rem;
-  border: 1px solid var(--faint);
   border-radius: 2rem;
-  transition: border-color 0.3s, color 0.3s;
 }
-.ref-btn:active { color: var(--fg); border-color: var(--dim); }
 
 .size-btn {
   font-family: var(--sans);
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--accent);
   width: 2.2rem;
   height: 2.2rem;
-  border: 1px solid var(--faint);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.3s, color 0.3s, opacity 0.3s;
 }
-.size-btn:active { color: var(--fg); border-color: var(--dim); }
-.size-btn:disabled { opacity: 0.3; }
+.size-btn:disabled {
+  opacity: 0.35;
+  transform: none;
+}
 
-#footnav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 1.4rem calc(env(safe-area-inset-bottom) + 0.9rem);
-  background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0));
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  pointer-events: none;
+/* Glass loses its blur on browsers without backdrop-filter; fall back to a
+   slightly more opaque fill so the controls stay legible over text. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .ref-btn,
+  .size-btn {
+    background: rgba(40, 40, 40, 0.85);
+  }
 }
-#footnav > * { pointer-events: auto; }
-#footnav.hidden { opacity: 0; transform: translateY(110%); }
-
-.nav-arrow {
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  color: var(--accent);
-  padding: 0.5rem 0.6rem;
-}
-.nav-arrow:disabled { color: var(--faint); }

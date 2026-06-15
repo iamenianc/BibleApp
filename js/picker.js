@@ -39,25 +39,37 @@ export function openBooks(books, onPick) {
   els.overlayTitle.textContent = "Books";
   clearList();
 
+  // Two columns side by side: OT on the left (right-aligned text),
+  // NT on the right (left-aligned text).
   const sections = [
-    { title: "Old Testament", filter: (b) => b.order <= OT_MAX_ORDER },
-    { title: "New Testament", filter: (b) => b.order > OT_MAX_ORDER },
+    { title: "Old Testament", align: "ot", filter: (b) => b.order <= OT_MAX_ORDER },
+    { title: "New Testament", align: "nt", filter: (b) => b.order > OT_MAX_ORDER },
   ];
 
+  const columns = document.createElement("div");
+  columns.className = "pick-columns";
+
   for (const sec of sections) {
+    const col = document.createElement("div");
+    col.className = `pick-col pick-col-${sec.align}`;
+
     const h = document.createElement("div");
     h.className = "pick-section";
     h.textContent = sec.title;
-    els.pickerList.appendChild(h);
+    col.appendChild(h);
 
     for (const book of books.filter(sec.filter)) {
       const btn = document.createElement("button");
       btn.className = "pick-item";
       btn.textContent = book.commonName;
       btn.addEventListener("click", () => openChapters(book, onPick));
-      els.pickerList.appendChild(btn);
+      col.appendChild(btn);
     }
+
+    columns.appendChild(col);
   }
+
+  els.pickerList.appendChild(columns);
 
   els.overlay.classList.add("open");
   revealUI();

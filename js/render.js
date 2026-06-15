@@ -111,62 +111,71 @@ function buildVerse(item, chapter, isPoetry) {
   return span;
 }
 
-/**
- * Render a chapter payload into #reader as continuous prose.
- * Returns the resolved book display name.
- */
-export function renderChapter(data, books) {
-  els.reader.innerHTML = "";
-
-  // Some books (e.g. Proverbs) always show verse numbers, ignoring tap-reveal.
-  els.reader.classList.toggle(
-    "always-verses",
-    ALWAYS_NUMBERED_BOOKS.includes(data.book.id)
-  );
-
+/** Resolve a chapter's display book name. */
+export function bookNameOf(data, books) {
   const book = books.find((b) => b.id === data.book.id);
-  const bookName =
+  return (
     (data.book && (data.book.commonName || data.book.name)) ||
     (book && book.commonName) ||
-    data.book.id;
+    data.book.id
+  );
+}
+
+/**
+ * Build a self-contained <section class="chapter"> for a chapter payload.
+ * Sections are appended to #reader for seamless infinite scroll. The section
+ * carries the book/chapter on its dataset and the next-chapter link so the
+ * scroller knows what to load next.
+ */
+export function buildChapter(data, books) {
+  const bookName = bookNameOf(data, books);
+
+  const section = document.createElement("section");
+  section.className = "chapter";
+  section.dataset.book = data.book.id;
+  section.dataset.chapter = data.chapter.number;
+  section.dataset.bookName = bookName;
+  if (data.nextChapterApiLink) section.dataset.next = data.nextChapterApiLink;
+
+  // Per-chapter, since appended chapters may belong to different books
+  // (e.g. scrolling from Psalms into Proverbs).
+  if (ALWAYS_NUMBERED_BOOKS.includes(data.book.id)) {
+    section.classList.add("always-verses");
+  }
 
   const label = document.createElement("div");
   label.className = "chapter-label";
   label.textContent = `${bookName} · ${data.chapter.number}`;
-  els.reader.appendChild(label);
+  section.appendChild(label);
 
-  // Current open prose block; null until the next verse opens one.
   let flow = null;
   const openFlow = () => {
     flow = document.createElement("p");
     flow.className = "flow";
-    els.reader.appendChild(flow);
+    section.appendChild(flow);
     return flow;
   };
 
   for (const item of data.chapter.content) {
     switch (item.type) {
       case "heading":
-        // editorial section title — suppressed
-        break;
+        break; // editorial section title — suppressed
 
       case "hebrew_subtitle": {
-        flow = null; // forces a fresh block after the subtitle
+        flow = null;
         const sub = document.createElement("p");
         sub.className = "hebrew-subtitle";
         renderInline(item.content || [], sub, data);
-        els.reader.appendChild(sub);
+        section.appendChild(sub);
         break;
       }
 
       case "line_break":
-        // source-defined break: end the current prose block
         flow = null;
         break;
 
       case "verse": {
         if (!flow) openFlow();
-        // mark a block as poetry if any of its verses carry poem formatting
         const hasPoem = (item.content || []).some(
           (p) => p && typeof p === "object" && p.poem
         );
@@ -180,5 +189,5 @@ export function renderChapter(data, books) {
     }
   }
 
-  return bookName;
+  return section;
 }
