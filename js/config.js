@@ -12,11 +12,12 @@ export const UI_HIDE_DELAY = 2200;
 
 // Gentle automatic forward scroll.
 // The base speed is tuned for the SMALLEST text size. As the reading size
-// grows, the drift speeds up in proportion to the font size, so the reading
-// pace (lines per second) stays roughly constant — but the multiplier is
-// capped at AUTOSCROLL_MAX_MULT so it never climbs past a medium pace.
-export const AUTOSCROLL_SPEED = 8;       // px per second at the smallest size
-export const AUTOSCROLL_MAX_MULT = 3;    // ceiling at the largest size (≈ medium pace)
+// grows, the drift speeds up faster than the font size (the ratio is raised to
+// AUTOSCROLL_SPEED_EXP), so small sizes stay gentle while the largest levels
+// accelerate noticeably. The multiplier is still capped at AUTOSCROLL_MAX_MULT.
+export const AUTOSCROLL_SPEED = 9;       // px per second at the smallest size
+export const AUTOSCROLL_SPEED_EXP = 3;  // >1 makes large sizes scroll steeper than the raw font ratio
+export const AUTOSCROLL_MAX_MULT = 10;    // safety ceiling on the size multiplier
 export const AUTOSCROLL_RESUME_DELAY = 50;  // ms of quiet before resuming after a manual scroll — almost instant
 export const AUTOSCROLL_TAP_DELAY = 4000;    // ms to stay paused after a deliberate tap/click, so the reader can dwell on a verse
 export const AUTOSCROLL_RAMP = 500;      // ms to ease from a standstill up to full speed
@@ -25,6 +26,12 @@ export const AUTOSCROLL_RAMP = 500;      // ms to ease from a standstill up to f
 // this multiplier to each notch, so spinning the wheel inches the text along
 // very slowly rather than jumping a screenful at a time. 1 = browser default.
 export const WHEEL_SENSITIVITY = 0.25;
+
+// Manual finger (touch) scrolling. Native touch scrolling is disabled so the
+// reader can drive the drift itself; this multiplier applies to each touchmove
+// delta. Near 1 keeps dragging close to 1:1 so the page follows the finger
+// naturally, while the wheel above stays slowed.
+export const TOUCH_SENSITIVITY = 0.9;
 
 // Books whose verse numbers are always shown (not tap-to-reveal).
 export const ALWAYS_NUMBERED_BOOKS = ["PRO"];

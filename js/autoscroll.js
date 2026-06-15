@@ -8,10 +8,12 @@
 import { els } from "./dom.js";
 import {
   AUTOSCROLL_SPEED,
+  AUTOSCROLL_SPEED_EXP,
   AUTOSCROLL_MAX_MULT,
   AUTOSCROLL_RESUME_DELAY,
   AUTOSCROLL_RAMP,
   WHEEL_SENSITIVITY,
+  TOUCH_SENSITIVITY,
 } from "./config.js";
 
 // Effective drift speed (px/s). Starts at the base (smallest-size) pace and is
@@ -75,12 +77,13 @@ function stopLoop() {
 
 /**
  * Scale the drift speed for the current reading size. `ratio` is the current
- * font size relative to the smallest (1 at the floor). Speed grows with it so
- * the reading pace stays constant, but is capped at AUTOSCROLL_MAX_MULT so it
- * never exceeds a medium pace at the largest sizes.
+ * font size relative to the smallest (1 at the floor). Speed grows steeper than
+ * the ratio (raised to AUTOSCROLL_SPEED_EXP) so the largest sizes accelerate
+ * noticeably while small sizes stay gentle, capped at AUTOSCROLL_MAX_MULT.
  */
 export function setAutoScrollScale(ratio) {
-  const mult = Math.min(AUTOSCROLL_MAX_MULT, Math.max(1, ratio));
+  const boosted = Math.pow(Math.max(1, ratio), AUTOSCROLL_SPEED_EXP);
+  const mult = Math.min(AUTOSCROLL_MAX_MULT, boosted);
   speed = AUTOSCROLL_SPEED * mult;
 }
 
@@ -171,7 +174,7 @@ function onTouchMove(e) {
   // but slowed by the sensitivity multiplier. (Dragging up moves text up.)
   const y = e.touches[0].clientY;
   const now = performance.now();
-  const dy = (touchLastY - y) * WHEEL_SENSITIVITY;
+  const dy = (touchLastY - y) * TOUCH_SENSITIVITY;
   touchLastY = y;
 
   const dt = now - touchLastMoveT;

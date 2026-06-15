@@ -12,9 +12,13 @@ const TOP_TAP_ZONE = 120; // px
 // Mirror verses.js so a swipe near the top isn't mistaken for a tap.
 const MOVE_TOLERANCE = 10; // px
 const TIME_TOLERANCE = 500; // ms
+// A scroll smaller than this is jitter (e.g. the touch-end momentum glide that
+// a tap produces) and must not dismiss the bar — only a real scroll should.
+const SCROLL_DISMISS_MIN = 12; // px
 
 let hideTimer = null;
 let interactUntil = 0; // timestamp; while in the future, the bar stays put
+let lastScrollTop = 0;  // to measure scroll deltas and ignore tiny ones
 
 let tapStartX = 0;
 let tapStartY = 0;
@@ -43,7 +47,13 @@ export function keepUIAlive(ms = UI_HIDE_DELAY) {
 }
 
 function onScroll() {
-  // scrolling only hides the bar; it never brings it back
+  // Scrolling only hides the bar; it never brings it back. Ignore tiny moves,
+  // though: a tap's touch-end momentum glide writes a few sub-pixel scrolls,
+  // and on a phone those would otherwise dismiss the bar the instant it shows.
+  const top = els.reader.scrollTop;
+  const moved = Math.abs(top - lastScrollTop);
+  lastScrollTop = top;
+  if (moved < SCROLL_DISMISS_MIN) return;
   hideUI();
 }
 
@@ -72,6 +82,7 @@ function onTapEnd() {
 }
 
 export function initChrome() {
+  lastScrollTop = els.reader.scrollTop;
   // #reader is the scroll container (see reader.css), not the window
   els.reader.addEventListener("scroll", onScroll, { passive: true });
 

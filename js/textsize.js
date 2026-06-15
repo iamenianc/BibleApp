@@ -9,14 +9,14 @@ import { setAutoScrollScale } from "./autoscroll.js";
 const SIZE_KEY = "theword:size";
 const LEVELS = [
   "20px", // 1  minimum — the floor for this UI
-  "24px", // 2
-  "32px", // 3
-  "36px", // 4
-  "42px", // 5  default
-  "47px", // 6
-  "53px", // 7
+  "25px", // 2
+  "30px", // 3
+  "35px", // 4
+  "40px", // 5  default
+  "45px", // 6
+  "50px", // 7
   "60px", // 8
-  "68px", // 9  very large
+  "70px", // 9  very large
 ];
 const DEFAULT_LEVEL = 5; // 1-based, the middle
 const MIN = 1;
