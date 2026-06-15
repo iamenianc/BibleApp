@@ -21,9 +21,19 @@
 <body>
 
   <header id="topbar">
-    <button class="size-btn" id="size-down" aria-label="Decrease text size">A&minus;</button>
+    <div class="bar-group bar-left">
+      <button class="icon-btn" id="audio-play" aria-label="Play chapter audio">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ic-play" d="M8 5v14l11-7z"/><path class="ic-pause" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <button class="icon-btn" id="audio-stop" aria-label="Stop chapter audio">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>
+      </button>
+    </div>
     <button class="ref-btn" id="ref-display">Loading…</button>
-    <button class="size-btn" id="size-up" aria-label="Increase text size">A+</button>
+    <div class="bar-group bar-right">
+      <button class="size-btn" id="size-down" aria-label="Decrease text size">A&minus;</button>
+      <button class="size-btn" id="size-up" aria-label="Increase text size">A+</button>
+    </div>
   </header>
 
   <main id="reader" aria-live="polite"></main>

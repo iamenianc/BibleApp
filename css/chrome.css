@@ -9,15 +9,49 @@
   z-index: 50;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1.4rem;
-  padding: calc(env(safe-area-inset-top) + 0.7rem) 1rem 0.7rem;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: calc(env(safe-area-inset-top) + 0.9rem) 1rem 0.9rem;
   background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
   transition: opacity 0.5s ease, transform 0.5s ease;
   pointer-events: none;
 }
 #topbar > * { pointer-events: auto; }
 #topbar.hidden { opacity: 0; transform: translateY(-110%); }
+
+/* Left (audio) and right (text-size) control clusters. Equal flex-basis keeps
+   the reference label optically centered between them. */
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 0;
+}
+.bar-left { justify-content: flex-start; }
+.bar-right { justify-content: flex-end; }
+.ref-btn { flex: 0 1 auto; text-align: center; }
+
+/* Audio play/pause + stop, as quiet line icons echoing the chrome palette. */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0.35rem;
+  color: var(--dim);
+  transition: color 0.3s ease;
+}
+.icon-btn:active { color: var(--fg); }
+.icon-btn svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: currentColor;
+}
+/* The play button holds both glyphs; show one at a time based on .playing. */
+#audio-play .ic-pause { display: none; }
+#audio-play.playing .ic-play { display: none; }
+#audio-play.playing .ic-pause { display: inline; }
 
 /* Shared quiet style — same spirit as .chapter-label. */
 .ref-btn,
@@ -34,14 +68,15 @@
 .size-btn:active { color: var(--fg); }
 
 .ref-btn {
-  font-size: 0.72rem;
-  padding: 0.3rem 0.4rem;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
 }
 
 .size-btn {
-  font-size: 0.9rem;
+  /* sized to balance the reference label and give a comfortable touch target */
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 0.05em;
-  padding: 0.3rem 0.2rem;
+  padding: 0.5rem 0.55rem;
 }
 .size-btn:disabled { opacity: 0.3; }

@@ -11,6 +11,7 @@ import { registerSW } from "./pwa.js";
 import { initTextSize } from "./textsize.js";
 import { initVerseReveal } from "./verses.js";
 import { initAutoScroll, nudgeAutoScroll } from "./autoscroll.js";
+import { initAudio, setAudioChapter } from "./audio.js";
 
 let books = [];
 
@@ -22,6 +23,7 @@ async function goTo(bookId, chapter) {
     startFeed(data);
     const name = data.book.commonName || data.book.name || bookId;
     els.ref.textContent = `${name} ${data.chapter.number}`;
+    setAudioChapter(data.book.id, data.chapter.number);
     saveLast({ book: data.book.id, chapter: data.chapter.number });
     hideStatus();
     revealUI();
@@ -36,9 +38,11 @@ function wireEvents() {
   initChrome();
   initTextSize();
   initVerseReveal();
+  initAudio();
   // live-update the reference and remembered position as chapters scroll past
   initFeed(books, ({ book, bookName, chapter }) => {
     els.ref.textContent = `${bookName} ${chapter}`;
+    setAudioChapter(book, Number(chapter));
     saveLast({ book, chapter: Number(chapter) });
   });
 

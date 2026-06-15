@@ -10,6 +10,7 @@ import {
   AUTOSCROLL_SPEED,
   AUTOSCROLL_RESUME_DELAY,
   AUTOSCROLL_RAMP,
+  WHEEL_SENSITIVITY,
 } from "./config.js";
 
 let running = false;     // the rAF loop is active and allowed to move
@@ -20,6 +21,14 @@ let resumeTimer = null;
 let pos = 0;             // fractional scroll position we drive, for sub-pixel smoothness
 let lastTop = 0;         // last scrollTop we wrote, to detect manual scrolling
 let enabled = false;     // master switch (off until started)
+
+// Finger-scroll state. We drive the scroll ourselves (native touch scrolling is
+// disabled in reader.css) so the same slow sensitivity applies, then glide to a
+// stop with our own momentum after the finger lifts.
+let touchLastY = 0;      // last touch Y, to measure per-move delta
+let touchVel = 0;        // current finger velocity in px/ms (already scaled)
+let touchLastMoveT = 0;  // timestamp of the last touchmove, for velocity
+let momentumId = null;   // rAF id for the post-release glide
 
 function frame(t) {
   if (!running) return;
@@ -89,11 +98,96 @@ export function nudgeAutoScroll(delay = AUTOSCROLL_RESUME_DELAY) {
   resumeTimer = setTimeout(resumeAutoScroll, delay);
 }
 
+// A backward (upward) move is a deliberate stop: pause and stay paused until
+// the reader scrolls forward again. A forward move just nudges (resumes after
+// the usual quiet period). `dy < 0` means moving up.
+function reactToManualMove(dy) {
+  if (dy < 0) pauseAutoScroll();
+  else nudgeAutoScroll();
+}
+
 function onManualScroll() {
   // Ignore the scroll events our own loop generates; react only to the reader
   // moving the page by hand (wheel, drag, momentum).
-  if (Math.abs(els.reader.scrollTop - lastTop) <= 2) return;
-  nudgeAutoScroll();
+  const dy = els.reader.scrollTop - lastTop;
+  if (Math.abs(dy) <= 2) return;
+  reactToManualMove(dy);
+}
+
+// Scroll the reader by `dy` pixels, clamped, and record the write so the
+// scroll handler recognizes it as ours. Returns the actual delta applied.
+function scrollByPixels(dy) {
+  const el = els.reader;
+  const max = el.scrollHeight - el.clientHeight;
+  const before = el.scrollTop;
+  el.scrollTop = Math.min(max, Math.max(0, before + dy));
+  lastTop = el.scrollTop;
+  return el.scrollTop - before;
+}
+
+// Intercept the mouse wheel and apply our own slowed-down delta, so spinning
+// the wheel inches the text along instead of jumping. Must be non-passive to
+// call preventDefault.
+function onWheel(e) {
+  e.preventDefault();
+  // Normalize line/page deltas to pixels (deltaMode 1 = lines, 2 = pages).
+  const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? els.reader.clientHeight : 1;
+  const moved = scrollByPixels(e.deltaY * unit * WHEEL_SENSITIVITY);
+  reactToManualMove(moved);
+}
+
+function stopMomentum() {
+  if (momentumId != null) {
+    cancelAnimationFrame(momentumId);
+    momentumId = null;
+  }
+}
+
+function onTouchStart(e) {
+  stopMomentum();
+  touchLastY = e.touches[0].clientY;
+  touchLastMoveT = performance.now();
+  touchVel = 0;
+}
+
+function onTouchMove(e) {
+  // The finger moving down by dy should scroll the text down by the same dy,
+  // but slowed by the sensitivity multiplier. (Dragging up moves text up.)
+  const y = e.touches[0].clientY;
+  const now = performance.now();
+  const dy = (touchLastY - y) * WHEEL_SENSITIVITY;
+  touchLastY = y;
+
+  const dt = now - touchLastMoveT;
+  touchLastMoveT = now;
+  if (dt > 0) touchVel = dy / dt; // px per ms, for the release glide
+
+  scrollByPixels(dy);
+  e.preventDefault(); // we own the scroll; stop the browser doing its own
+}
+
+function onTouchEnd() {
+  // A backward (upward) flick is a deliberate stop — pause and stay paused.
+  // A forward flick nudges and resumes after the usual quiet period.
+  reactToManualMove(touchVel);
+  // Glide to a stop from the finger's last velocity (skip if barely moving).
+  if (Math.abs(touchVel) < 0.02) return;
+  let v = touchVel;
+  let last = performance.now();
+  const decay = 0.0025; // higher = stops sooner
+  const tick = (t) => {
+    const dt = t - last;
+    last = t;
+    const moved = scrollByPixels(v * dt);
+    v *= Math.exp(-decay * dt); // exponential slowdown
+    // Keep gliding until the velocity fades or we hit an edge.
+    if (Math.abs(v) > 0.01 && moved !== 0) {
+      momentumId = requestAnimationFrame(tick);
+    } else {
+      momentumId = null;
+    }
+  };
+  momentumId = requestAnimationFrame(tick);
 }
 
 export function initAutoScroll() {
@@ -109,7 +203,14 @@ export function initAutoScroll() {
 
   // A hand on the page (drag / wheel) pauses, then resumes almost instantly.
   els.reader.addEventListener("scroll", onManualScroll, { passive: true });
-  els.reader.addEventListener("wheel", () => nudgeAutoScroll(), { passive: true });
+  // Non-passive so we can slow the wheel down ourselves (see onWheel).
+  els.reader.addEventListener("wheel", onWheel, { passive: false });
+
+  // Finger scrolling: we drive it ourselves at the same reduced sensitivity,
+  // with a momentum glide on release. Non-passive so touchmove can preventDefault.
+  els.reader.addEventListener("touchstart", onTouchStart, { passive: true });
+  els.reader.addEventListener("touchmove", onTouchMove, { passive: false });
+  els.reader.addEventListener("touchend", onTouchEnd, { passive: true });
 
   // Don't drift while the tab is hidden.
   document.addEventListener("visibilitychange", () => {

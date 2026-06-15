@@ -10,7 +10,7 @@
 //   - No red-letter styling.
 
 import { els } from "./dom.js";
-import { ALWAYS_NUMBERED_BOOKS } from "./config.js";
+import { ALWAYS_NUMBERED_BOOKS, BOOK_ABBREV } from "./config.js";
 
 function footnoteText(chapter, id) {
   const notes = chapter && chapter.footnotes;
@@ -141,6 +141,7 @@ export function buildChapter(data, books) {
   section.dataset.book = data.book.id;
   section.dataset.chapter = data.chapter.number;
   section.dataset.bookName = bookName;
+  section.dataset.bookAbbrev = BOOK_ABBREV[data.book.id] || data.book.id;
   if (data.nextChapterApiLink) section.dataset.next = data.nextChapterApiLink;
 
   // Per-chapter, since appended chapters may belong to different books

@@ -8,6 +8,8 @@ export const els = {
   ref: $("ref-display"),
   sizeDown: $("size-down"),
   sizeUp: $("size-up"),
+  audioPlay: $("audio-play"),
+  audioStop: $("audio-stop"),
   overlay: $("overlay"),
   overlayTitle: $("overlay-title"),
   overlayClose: $("overlay-close"),

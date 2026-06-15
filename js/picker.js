@@ -60,11 +60,30 @@ export function openBooks(books, onPick) {
     h.textContent = sec.title;
     col.appendChild(h);
 
-    for (const book of books.filter(sec.filter)) {
+    // Testament membership is by canonical order, but the list within each
+    // column is shown alphabetically by name, ignoring any leading number so
+    // "1 Corinthians"/"2 Corinthians" sort under C, "1/2/3 John" under J, etc.
+    const sortKey = (b) => b.commonName.replace(/^\d+\s*/, "");
+    const inSection = books
+      .filter(sec.filter)
+      .sort(
+        (a, b) =>
+          sortKey(a).localeCompare(sortKey(b)) || a.order - b.order
+      );
+    for (const book of inSection) {
       const btn = document.createElement("button");
       btn.className = "pick-item";
       btn.textContent = book.commonName;
-      btn.addEventListener("click", () => openChapters(book, onPick));
+      btn.addEventListener("click", () => {
+        // Single-chapter books (Obadiah, Philemon, 2/3 John, Jude) have no
+        // chapter to choose — open straight to the text.
+        if (book.numberOfChapters === 1) {
+          closeOverlay();
+          onPick(book.id, 1);
+        } else {
+          openChapters(book, onPick);
+        }
+      });
       col.appendChild(btn);
     }
 

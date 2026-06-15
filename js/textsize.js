@@ -7,10 +7,10 @@ import { keepUIAlive } from "./chrome.js";
 
 const SIZE_KEY = "theword:size";
 const LEVELS = [
-  "28px", // 1  minimum — the floor for this UI
-  "31px", // 2
-  "34px", // 3
-  "38px", // 4
+  "26px", // 1  minimum — the floor for this UI
+  "28px", // 2
+  "32px", // 3
+  "36px", // 4
   "42px", // 5  default
   "47px", // 6
   "53px", // 7

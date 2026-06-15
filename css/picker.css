@@ -59,7 +59,7 @@
   font-family: var(--sans);
   font-size: 1.05rem;
   color: var(--fg);
-  padding: 0.7rem 1rem;
+  padding: 0.42rem 1rem;
   border: none;
   transition: color 0.2s;
 }
@@ -69,11 +69,11 @@
 
 .pick-section {
   font-family: var(--sans);
-  font-size: 0.68rem;
+  font-size: 0.86rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--dim);
-  padding: 0.5rem 1rem 0.5rem;
+  padding: 0.5rem 1rem 0.9rem;
 }
 
 .chapter-grid {

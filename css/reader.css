@@ -6,7 +6,10 @@
   position: fixed;
   inset: 0;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  /* Native touch scrolling is disabled so autoscroll.js can drive the scroll
+     itself at a reduced speed (with its own momentum). touch-action: none lets
+     our touchmove handler take over without the browser also scrolling. */
+  touch-action: none;
 
   /* inner column */
   padding: 30vh max(1.6rem, calc((100% - 38rem) / 2 + 1.6rem)) 55vh;
@@ -104,27 +107,12 @@
 /* Each verse is an inline span so prose stays continuous. */
 .verse {
   cursor: pointer;
-  border-radius: 0.2em;
-  transition: background-color 0.3s ease;
-}
-.verse.revealed {
-  background: rgba(185, 180, 168, 0.10);
 }
 
-/* In poetry, highlight the individual lines (hugging their text) rather than
-   the whole stanza as one block. */
-.flow.poetry .verse.revealed { background: none; }
-.flow.poetry .poem-line {
-  border-radius: 0.2em;
-  transition: background-color 0.3s ease;
-}
-.flow.poetry .verse.revealed .poem-line {
-  width: fit-content;       /* highlight hugs the text, not the full column */
-  background: rgba(185, 180, 168, 0.10);
-}
-
-/* Verse number revealed on deliberate tap; fully collapsed otherwise so it
-   leaves no phantom indent at the start of a line. */
+/* The verse number never appears inline for tap-to-reveal books; on tap it is
+   shown in a floating tooltip (.verse-tip) instead. The inline .vnum is kept
+   fully collapsed so it leaves no phantom indent at the start of a line.
+   (Always-numbered books override this below to show the number inline.) */
 .vnum {
   font-family: var(--sans);
   font-size: 0.6em;
@@ -134,15 +122,36 @@
 
   display: inline-block;
   max-width: 0;
-  margin: 0;                /* no margins while hidden — avoids a phantom indent */
+  margin: 0;
   overflow: hidden;
   opacity: 0;
-  transition: max-width 0.25s ease, opacity 0.25s ease, margin 0.25s ease;
 }
-.verse.revealed .vnum {
-  max-width: 4em;
-  margin: 0 0.3em 0 0.1em;  /* spacing only once visible */
-  opacity: 1;
+
+/* Soft floating tooltip showing the tapped verse's reference, positioned at the
+   tap point by verses.js. Sits above the finger by default; flips below (.below)
+   when the tap is near the top so it never collides with the top menu. Its
+   z-index stays under the topbar (50) as a final safeguard. */
+.verse-tip {
+  position: fixed;
+  z-index: 40;
+  transform: translate(-50%, calc(-100% - 0.5rem));
+  padding: 0.3rem 0.7rem;
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 0.4em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  pointer-events: none;     /* never intercepts taps */
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.verse-tip.below {
+  transform: translate(-50%, 0.5rem);
+}
+.verse-tip.visible {
+  opacity: 0.92;
 }
 
 /* ----- Always-numbered books (e.g. Proverbs) ----- */
