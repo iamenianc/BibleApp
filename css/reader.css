@@ -26,16 +26,19 @@
      from the top edge. */
   --fade-top: 30vh;        /* fully opaque (readable) by here */
   --opaque-bottom: 40vh;   /* readable band ends here (from the top) */
+  /* The top fade starts partly opaque (not fully transparent) so the masking
+     at the top edge is a touch lighter — text emerges a little sooner. Only
+     the top is softened; the bottom still fades fully to transparent. */
   -webkit-mask-image: linear-gradient(
     to bottom,
-    transparent 0,
+    rgba(0, 0, 0, 0.35) 0,
     #000 var(--fade-top),
     #000 var(--opaque-bottom),
     transparent 100%
   );
           mask-image: linear-gradient(
     to bottom,
-    transparent 0,
+    rgba(0, 0, 0, 0.35) 0,
     #000 var(--fade-top),
     #000 var(--opaque-bottom),
     transparent 100%
