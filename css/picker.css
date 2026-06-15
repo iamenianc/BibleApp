@@ -1,0 +1,81 @@
+/* picker.css — full-screen book / chapter overlay */
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.97);
+  backdrop-filter: blur(8px);
+  display: none;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 1rem) 0 env(safe-area-inset-bottom);
+}
+#overlay.open { display: flex; }
+
+.overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.4rem 1rem;
+  font-family: var(--sans);
+}
+.overlay-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.overlay-close {
+  font-size: 1.6rem;
+  color: var(--accent);
+  line-height: 1;
+  padding: 0.2rem 0.6rem;
+}
+
+#picker-list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0.8rem 2rem;
+}
+
+.pick-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  color: var(--fg);
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--faint);
+  transition: color 0.2s;
+}
+.pick-item:active { color: var(--accent); }
+
+.pick-section {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 1.6rem 1rem 0.5rem;
+}
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.2rem, 1fr));
+  gap: 0.5rem;
+  padding: 0.5rem 1rem 2rem;
+}
+.chap-cell {
+  font-family: var(--sans);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--faint);
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+.chap-cell:active { border-color: var(--dim); color: var(--accent); }

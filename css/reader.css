@@ -1,0 +1,95 @@
+/* reader.css — the reading surface: continuous prose, tap-to-reveal verses */
+
+#reader {
+  max-width: 38rem;
+  margin: 0 auto;
+  padding: 28vh 1.6rem 60vh;
+}
+
+.chapter-label {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--dim);
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+/* Psalm superscriptions etc. — part of the text, kept (unlike editorial headings). */
+.hebrew-subtitle {
+  font-style: italic;
+  color: var(--dim);
+  font-size: calc(var(--read-size) * 0.82);
+  line-height: 1.9;
+  margin-bottom: 0.6rem;
+}
+
+/*
+ * Verses flow as continuous prose inside a paragraph block.
+ * A new .flow block starts only at chapter start, a source line break,
+ * or a hebrew subtitle — never between ordinary consecutive verses.
+ */
+.flow {
+  font-size: var(--read-size);
+  line-height: 2.0;
+  color: var(--fg);
+  margin: 0 0 0.2rem;
+
+  /* gentle fade band driven by IntersectionObserver */
+  opacity: 0.12;
+  filter: blur(0.4px);
+  transition: opacity 0.7s ease, filter 0.7s ease, font-size 0.25s ease;
+}
+.flow.in {
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* poetry: honor line breaks, drop indentation (flat) */
+.flow.poetry { white-space: normal; }
+.flow.poetry .poem-line { display: block; }
+
+/* Each verse is an inline span so prose stays continuous. */
+.verse {
+  cursor: pointer;
+  border-radius: 0.2em;
+  transition: background-color 0.3s ease;
+}
+.verse.revealed {
+  background: rgba(185, 180, 168, 0.10);
+}
+
+/* Verse number revealed on deliberate tap; hidden otherwise. */
+.vnum {
+  font-family: var(--sans);
+  font-size: 0.6em;
+  vertical-align: super;
+  color: var(--accent);
+  margin-right: 0.3em;
+  margin-left: 0.1em;
+  letter-spacing: 0;
+
+  display: inline-block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.25s ease, opacity 0.25s ease;
+}
+.verse.revealed .vnum {
+  max-width: 4em;
+  opacity: 1;
+}
+
+.fn {
+  font-family: var(--sans);
+  font-size: 0.6em;
+  vertical-align: super;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow { transition: opacity 0.2s ease; filter: none; }
+  .flow:not(.in) { opacity: 0.4; }
+}

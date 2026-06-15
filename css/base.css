@@ -1,0 +1,86 @@
+/* base.css — tokens, reset, global shell */
+
+:root {
+  --bg: #000000;
+  --fg: #e8e6e1;
+  --dim: #6b6862;
+  --faint: #2a2926;
+  --accent: #b9b4a8;
+
+  /* Comic Neue for the reading surface; rounded sans fallbacks for offline. */
+  --reading: "Comic Neue", "Comic Sans MS", "Segoe Print", ui-rounded, system-ui, sans-serif;
+  --sans: ui-sans-serif, system-ui, sans-serif;
+
+  /* Reading text size — driven by 5 levels (default 3). Set on <html>. */
+  --read-size: 1.32rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--reading);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------- Status / loading ---------- */
+#status {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  color: var(--dim);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  z-index: 40;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+#status.gone { opacity: 0; }
+
+.breath {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 0.9; transform: scale(1.25); }
+}
+
+.retry {
+  margin-top: 0.5rem;
+  pointer-events: auto;
+  border: 1px solid var(--faint);
+  border-radius: 2rem;
+  padding: 0.5rem 1.2rem;
+  color: var(--accent);
+}
