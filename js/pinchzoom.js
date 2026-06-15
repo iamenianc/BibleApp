@@ -43,7 +43,11 @@ function onTouchMove(e) {
   const target = Math.min(getTextLevelCount(), Math.max(1, baseLevel + steps));
   if (target === lastApplied) return; // skip the per-frame re-apply + persist
   lastApplied = target;
-  setTextLevel(target); // setTextLevel also clamps internally
+  // Pin the text under the pinch (the midpoint between the fingers) so growing
+  // or shrinking the size doesn't slide the reader off the line being read.
+  const focalX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+  const focalY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  setTextLevel(target, focalX, focalY); // setTextLevel also clamps internally
 }
 
 function onTouchEnd(e) {

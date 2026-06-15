@@ -120,6 +120,16 @@ export function setAutoScrollScale(ratio) {
   applySpeed();
 }
 
+/**
+ * Record a programmatic reposition (e.g. pinch-zoom re-anchoring the scroll
+ * after a size change) so the manual-scroll handler doesn't mistake the jump
+ * for a hand on the page, and a later resume picks up from the right spot.
+ */
+export function noteProgrammaticScroll() {
+  lastTop = els.reader.scrollTop;
+  pos = els.reader.scrollTop;
+}
+
 /** Begin (or resume) the gentle drift now, easing up to speed. */
 export function resumeAutoScroll() {
   if (!enabled) return;

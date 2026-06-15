@@ -96,7 +96,9 @@
   color: var(--fg);
   margin: 0 0 0.2rem;
   text-indent: 0;            /* every line flush-left, no paragraph indent */
-  transition: font-size 0.25s ease;
+  /* No font-size transition: the size change must be instant so pinch-zoom can
+     re-anchor the scroll to the text under the fingers in the same frame. An
+     animated reflow would slide the line being read out from under the eye. */
 }
 
 /* poetry: honor line breaks, drop indentation (flat) */

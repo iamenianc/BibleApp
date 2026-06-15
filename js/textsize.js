@@ -4,7 +4,7 @@
 
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
-import { setAutoScrollScale } from "./autoscroll.js";
+import { setAutoScrollScale, noteProgrammaticScroll } from "./autoscroll.js";
 
 const SIZE_KEY = "theword:size";
 const LEVELS = [
@@ -47,12 +47,57 @@ function setLevel(n) {
   persist();
 }
 
+// Find the element to keep visually pinned across a size change. Prefer what's
+// under the focal point (the midpoint of a pinch); otherwise pin the content in
+// the reading band near the top, where the eye rests for button-driven changes.
+function anchorElementAt(focalX, focalY) {
+  const reader = els.reader;
+  const rect = reader.getBoundingClientRect();
+  const x = focalX == null ? rect.left + rect.width / 2 : focalX;
+  // The opaque reading band sits ~30–40vh down; aim for its middle by default.
+  const y = focalY == null ? rect.top + reader.clientHeight * 0.35 : focalY;
+
+  const hit = document.elementFromPoint(x, y);
+  if (hit && hit !== reader && reader.contains(hit)) return hit;
+
+  // Focal landed on padding/a gap: pick the last block that starts above y.
+  const blocks = reader.querySelectorAll(".verse, .chapter-label, .hebrew-subtitle");
+  let best = null;
+  for (const b of blocks) {
+    if (b.getBoundingClientRect().top <= y) best = b;
+    else break;
+  }
+  return best;
+}
+
+/**
+ * Change the reading size while keeping the text under (focalX, focalY) pinned
+ * in place. Without this, scrollTop stays put as the content above it reflows,
+ * so the line being read slides away and the reader loses their place. The
+ * font-size change is instant (the transition is off), so the anchor's new
+ * on-screen position is final right after setLevel — we scroll by the delta to
+ * restore it, then tell autoscroll the jump was ours so it isn't read as a
+ * manual scroll.
+ */
+function setLevelAnchored(n, focalX, focalY) {
+  if (n === level) return; // no reflow, nothing to anchor
+  const reader = els.reader;
+  const anchor = anchorElementAt(focalX, focalY);
+  const before = anchor ? anchor.getBoundingClientRect().top : 0;
+  setLevel(n);
+  if (!anchor) return;
+  const after = anchor.getBoundingClientRect().top;
+  reader.scrollTop += after - before;
+  noteProgrammaticScroll();
+}
+
 export function getTextLevel() { return level; }
 export function getTextLevelCount() { return MAX; }
-export function textLevelDown() { setLevel(level - 1); }
-export function textLevelUp() { setLevel(level + 1); }
-/** Jump straight to a level (1..MAX); clamped. Used by pinch-to-zoom. */
-export function setTextLevel(n) { setLevel(n); }
+export function textLevelDown() { setLevelAnchored(level - 1); }
+export function textLevelUp() { setLevelAnchored(level + 1); }
+/** Jump straight to a level (1..MAX); clamped. Used by pinch-to-zoom, which
+ *  passes the pinch focal point so the text under the fingers stays put. */
+export function setTextLevel(n, focalX, focalY) { setLevelAnchored(n, focalX, focalY); }
 
 export function initTextSize() {
   let saved = DEFAULT_LEVEL;
@@ -66,6 +111,6 @@ export function initTextSize() {
   apply();
 
   // Each tap keeps the bar from fading while the reader is dialing size in.
-  els.sizeDown.addEventListener("click", () => { setLevel(level - 1); keepUIAlive(); });
-  els.sizeUp.addEventListener("click", () => { setLevel(level + 1); keepUIAlive(); });
+  els.sizeDown.addEventListener("click", () => { setLevelAnchored(level - 1); keepUIAlive(); });
+  els.sizeUp.addEventListener("click", () => { setLevelAnchored(level + 1); keepUIAlive(); });
 }
