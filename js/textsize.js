@@ -48,8 +48,11 @@ function setLevel(n) {
 }
 
 export function getTextLevel() { return level; }
+export function getTextLevelCount() { return MAX; }
 export function textLevelDown() { setLevel(level - 1); }
 export function textLevelUp() { setLevel(level + 1); }
+/** Jump straight to a level (1..MAX); clamped. Used by pinch-to-zoom. */
+export function setTextLevel(n) { setLevel(n); }
 
 export function initTextSize() {
   let saved = DEFAULT_LEVEL;

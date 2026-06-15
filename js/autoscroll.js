@@ -203,6 +203,12 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
+  // Two or more fingers means a pinch (pinchzoom.js owns it) — don't scroll.
+  // We still preventDefault so the browser does nothing of its own.
+  if (e.touches.length > 1) {
+    e.preventDefault();
+    return;
+  }
   // The finger moving down by dy should scroll the text down by the same dy,
   // but slowed by the sensitivity multiplier. (Dragging up moves text up.)
   const y = e.touches[0].clientY;
@@ -218,7 +224,15 @@ function onTouchMove(e) {
   e.preventDefault(); // we own the scroll; stop the browser doing its own
 }
 
-function onTouchEnd() {
+function onTouchEnd(e) {
+  // Coming out of a pinch with one finger still down: re-anchor to that finger
+  // so the next move measures from where it is, not the lifted finger's start.
+  if (e.touches && e.touches.length >= 1) {
+    touchLastY = e.touches[0].clientY;
+    touchLastMoveT = performance.now();
+    touchVel = 0;
+    return;
+  }
   // A near-stationary release is a tap, not a scroll — leave it to verses.js,
   // which owns the tap's resume. Reacting here on the finger's noise velocity
   // would randomly read as a tiny upward flick and pause indefinitely, killing

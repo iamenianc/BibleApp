@@ -12,6 +12,7 @@ import { registerSW } from "./pwa.js";
 import { initTextSize } from "./textsize.js";
 import { initVerseReveal } from "./verses.js";
 import { initAutoScroll, nudgeAutoScroll } from "./autoscroll.js";
+import { initPinchZoom } from "./pinchzoom.js";
 import { initAudio, setAudioChapter } from "./audio.js";
 
 let books = [];
@@ -53,6 +54,8 @@ function wireEvents() {
 
   // Gentle auto-scroll, once the feed is live.
   initAutoScroll();
+  // Two-finger pinch to step through reading sizes.
+  initPinchZoom();
 
   window.addEventListener("keydown", (e) => {
     if (els.overlay.classList.contains("open") && e.key === "Escape") {
