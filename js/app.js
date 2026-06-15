@@ -10,6 +10,7 @@ import { showStatus, hideStatus } from "./status.js";
 import { registerSW } from "./pwa.js";
 import { initTextSize } from "./textsize.js";
 import { initVerseReveal } from "./verses.js";
+import { initAutoScroll, nudgeAutoScroll } from "./autoscroll.js";
 
 let books = [];
 
@@ -24,6 +25,7 @@ async function goTo(bookId, chapter) {
     saveLast({ book: data.book.id, chapter: data.chapter.number });
     hideStatus();
     revealUI();
+    nudgeAutoScroll(); // begin drifting the fresh chapter after a quiet beat
   } catch (err) {
     console.error(err);
     showStatus("Couldn't load that chapter", () => goTo(bookId, chapter));
@@ -42,6 +44,9 @@ function wireEvents() {
 
   els.ref.addEventListener("click", () => openBooks(books, goTo));
   els.overlayClose.addEventListener("click", closeOverlay);
+
+  // Gentle auto-scroll, once the feed is live.
+  initAutoScroll();
 
   window.addEventListener("keydown", (e) => {
     if (els.overlay.classList.contains("open") && e.key === "Escape") {

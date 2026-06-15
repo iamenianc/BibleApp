@@ -1,20 +1,21 @@
 // textsize.js — 9 reading-size levels (default 5), persisted
-// Levels span very small → very large; 5 is the comfortable middle.
+// The app is built around large text in a small space, so the smallest level
+// is a deliberate 28px floor; the scale ramps up to very large from there.
 
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
 
 const SIZE_KEY = "theword:size";
 const LEVELS = [
-  "0.86rem", // 1  very small
-  "0.98rem", // 2
-  "1.12rem", // 3
-  "1.26rem", // 4
-  "1.42rem", // 5  default
-  "1.62rem", // 6
-  "1.86rem", // 7
-  "2.14rem", // 8
-  "2.5rem",  // 9  very large
+  "28px", // 1  minimum — the floor for this UI
+  "31px", // 2
+  "34px", // 3
+  "38px", // 4
+  "42px", // 5  default
+  "47px", // 6
+  "53px", // 7
+  "60px", // 8
+  "68px", // 9  very large
 ];
 const DEFAULT_LEVEL = 5; // 1-based, the middle
 const MIN = 1;

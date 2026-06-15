@@ -2,6 +2,7 @@
 
 import { els } from "./dom.js";
 import { revealUI } from "./chrome.js";
+import { pauseAutoScroll, nudgeAutoScroll } from "./autoscroll.js";
 
 // Books with order <= 39 are the Old Testament in the 66-book canon.
 const OT_MAX_ORDER = 39;
@@ -12,6 +13,7 @@ function clearList() {
 
 export function closeOverlay() {
   els.overlay.classList.remove("open");
+  nudgeAutoScroll(); // resume drifting gracefully after the picker closes
 }
 
 /** Render the chapter grid for one book; onPick(bookId, chapter) starts reading. */
@@ -72,5 +74,6 @@ export function openBooks(books, onPick) {
   els.pickerList.appendChild(columns);
 
   els.overlay.classList.add("open");
+  pauseAutoScroll(); // hold still while the reader browses the picker
   revealUI();
 }

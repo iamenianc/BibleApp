@@ -28,10 +28,13 @@ function partText(part) {
 }
 
 /**
- * When a footnote marker is dropped, the text segments on either side can
- * collapse into one word (e.g. "overcome" + "it." → "overcomeit."). Insert a
- * space only at a genuine word boundary — letter/digit on both sides — so we
- * don't add spaces before punctuation or mid-word.
+ * A footnote marker often sits at a word/sentence boundary between two text
+ * segments (e.g. "among us." + note + "We have seen"). Whether the marker is
+ * kept or dropped, the segments must not collapse together ("us.We"). Insert a
+ * space when the next segment starts a new word (letter/digit) and the previous
+ * one ended a word — a letter/digit OR sentence punctuation (. , ; : ! ?). We
+ * still skip cases where the next char is punctuation, so we never push a space
+ * in front of a comma or period.
  */
 function needsSpaceAcrossNote(content, idx) {
   const before = partText(content[idx - 1]);
@@ -39,7 +42,10 @@ function needsSpaceAcrossNote(content, idx) {
   if (!before || !after) return false;
   const prevCh = before[before.length - 1];
   const nextCh = after[0];
-  return /[\p{L}\p{N}]/u.test(prevCh) && /[\p{L}\p{N}]/u.test(nextCh);
+  if (/\s/.test(prevCh) || /\s/.test(nextCh)) return false; // already spaced
+  const prevEndsWord = /[\p{L}\p{N}.,;:!?]/u.test(prevCh);
+  const nextStartsWord = /[\p{L}\p{N}]/u.test(nextCh);
+  return prevEndsWord && nextStartsWord;
 }
 
 function renderInline(content, container, chapter, isPoetry) {

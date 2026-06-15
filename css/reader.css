@@ -13,10 +13,11 @@
 
   /* soothing pixel-level fade: transparent at the edges, opaque in the
      reading band. Text passes through this gradient as you scroll.
-     The opaque band sits high — it ends around the top third (≈40vh) and the
-     bottom fade runs the rest of the way, so the eye rests in the upper screen. */
-  --fade-top: 18vh;
-  --fade-bottom: 60vh;
+     The top fade runs deep so text is fully cleared behind the top menu,
+     keeping its labels legible; the opaque band sits high (≈top third) and
+     the bottom fade runs the rest of the way, so the eye rests up top. */
+  --fade-top: 28vh;
+  --fade-bottom: 58vh;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0,

@@ -28,8 +28,8 @@
   --reading: "Atkinson Hyperlegible Next", system-ui, sans-serif;
   --sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, sans-serif;
 
-  /* Reading text size — driven by 9 levels (default 5). Set on <html>. */
-  --read-size: 1.42rem;
+  /* Reading text size — driven by 9 levels (default 5 = 42px). Set on <html>. */
+  --read-size: 42px;
 }
 
 * {
