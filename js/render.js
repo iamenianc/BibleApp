@@ -78,7 +78,7 @@ function renderInline(content, container, chapter, isPoetry) {
       }
     } else if ("text" in part) {
       // formatted text — keep poetry shape, ignore words-of-Jesus tint
-      if (part.poem) {
+      if (part.poem && isPoetry) {
         const line = document.createElement("span");
         line.className = "poem-line";
         // mark the first poem line of the verse so the verse number can sit
@@ -88,6 +88,10 @@ function renderInline(content, container, chapter, isPoetry) {
         }
         line.textContent = part.text;
         container.appendChild(line);
+      } else if (part.poem) {
+        // chapter mixes prose and poetry → flatten the poem line into running
+        // prose, with a trailing space so adjacent lines don't run together.
+        container.appendChild(document.createTextNode(part.text + " "));
       } else {
         container.appendChild(document.createTextNode(part.text));
       }
@@ -155,6 +159,16 @@ export function buildChapter(data, books) {
   label.textContent = `${bookName} · ${data.chapter.number}`;
   section.appendChild(label);
 
+  // A chapter that mixes prose and poetry reads better as continuous prose, so
+  // poetry shaping (line breaks) is applied only when the WHOLE chapter is
+  // poetry. Decide once, up front, from the chapter's verses.
+  const isPoemVerse = (item) =>
+    (item.content || []).some((p) => p && typeof p === "object" && p.poem);
+  const verses = data.chapter.content.filter((i) => i.type === "verse");
+  const anyPoem = verses.some(isPoemVerse);
+  const anyProse = verses.some((v) => !isPoemVerse(v));
+  const renderPoetry = anyPoem && !anyProse;
+
   let flow = null;
   const openFlow = () => {
     flow = document.createElement("p");
@@ -183,11 +197,11 @@ export function buildChapter(data, books) {
 
       case "verse": {
         if (!flow) openFlow();
-        const hasPoem = (item.content || []).some(
-          (p) => p && typeof p === "object" && p.poem
-        );
-        if (hasPoem) flow.classList.add("poetry");
-        flow.appendChild(buildVerse(item, data, hasPoem));
+        // Shape as poetry only in an all-poetry chapter; in a mixed chapter the
+        // poem lines flatten into prose (see renderInline).
+        const versePoetry = renderPoetry && isPoemVerse(item);
+        if (versePoetry) flow.classList.add("poetry");
+        flow.appendChild(buildVerse(item, data, versePoetry));
         break;
       }
 
