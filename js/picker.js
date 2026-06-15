@@ -92,6 +92,15 @@ export function openBooks(books, onPick) {
 
   els.pickerList.appendChild(columns);
 
+  const credit = document.createElement("p");
+  credit.className = "pick-credit";
+  credit.textContent =
+    "The Holy Bible, Berean Standard Bible, BSB is produced in cooperation " +
+    "with Bible Hub, Discovery Bible, OpenBible.com, and the Berean Bible " +
+    "Translation Committee. This text of God's Word has been dedicated to the " +
+    "public domain.";
+  els.pickerList.appendChild(credit);
+
   els.overlay.classList.add("open");
   pauseAutoScroll(); // hold still while the reader browses the picker
   revealUI();

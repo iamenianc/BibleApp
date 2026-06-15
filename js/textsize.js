@@ -4,11 +4,12 @@
 
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
+import { setAutoScrollScale } from "./autoscroll.js";
 
 const SIZE_KEY = "theword:size";
 const LEVELS = [
-  "26px", // 1  minimum — the floor for this UI
-  "28px", // 2
+  "20px", // 1  minimum — the floor for this UI
+  "24px", // 2
   "32px", // 3
   "36px", // 4
   "42px", // 5  default
@@ -20,6 +21,7 @@ const LEVELS = [
 const DEFAULT_LEVEL = 5; // 1-based, the middle
 const MIN = 1;
 const MAX = LEVELS.length;
+const BASE_PX = parseFloat(LEVELS[0]); // smallest size — the autoscroll baseline
 
 let level = DEFAULT_LEVEL;
 
@@ -27,6 +29,8 @@ function apply() {
   document.documentElement.style.setProperty("--read-size", LEVELS[level - 1]);
   els.sizeDown.disabled = level <= MIN;
   els.sizeUp.disabled = level >= MAX;
+  // Speed the drift up with the text size (capped at medium inside autoscroll).
+  setAutoScrollScale(parseFloat(LEVELS[level - 1]) / BASE_PX);
 }
 
 function persist() {

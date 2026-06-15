@@ -12,27 +12,32 @@
   touch-action: none;
 
   /* inner column */
-  padding: 30vh max(1.6rem, calc((100% - 38rem) / 2 + 1.6rem)) 55vh;
+  padding: 30vh max(1.6rem, calc((100% - 38rem) / 2 + 1.6rem)) 35vh;
 
   /* soothing pixel-level fade: transparent at the edges, opaque in the
      reading band. Text passes through this gradient as you scroll.
      The top fade runs deep so text is fully cleared behind the top menu,
-     keeping its labels legible; the opaque band sits high (≈top third) and
-     the bottom fade runs the rest of the way, so the eye rests up top. */
-  --fade-top: 28vh;
-  --fade-bottom: 72vh;
+     keeping its labels legible. The opaque reading band is generous, then a
+     long, smooth fade carries the lower lines back into black so text rising
+     from the bottom emerges gradually from darkness — no hard cutoff, no
+     empty void at the bottom. */
+  /* The top menu carries its own solid black backing (see chrome.css), so the
+     mask no longer needs to reserve a clear band for it — text simply fades in
+     from the top edge. */
+  --fade-top: 30vh;        /* fully opaque (readable) by here */
+  --opaque-bottom: 40vh;   /* readable band ends here (from the top) */
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0,
     #000 var(--fade-top),
-    #000 calc(100% - var(--fade-bottom)),
+    #000 var(--opaque-bottom),
     transparent 100%
   );
           mask-image: linear-gradient(
     to bottom,
     transparent 0,
     #000 var(--fade-top),
-    #000 calc(100% - var(--fade-bottom)),
+    #000 var(--opaque-bottom),
     transparent 100%
   );
 
@@ -44,21 +49,21 @@
 #reader::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* Each chapter is appended as its own section for seamless scroll. */
-.chapter + .chapter { margin-top: 4rem; }
+.chapter + .chapter { margin-top: 2rem; }
 
 .chapter-label {
   font-family: var(--sans);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--dim);
   text-align: center;
-  margin-bottom: 3.5rem;
+  margin-bottom: 2rem;
 }
 /* the divider above every chapter after the first */
 .chapter + .chapter .chapter-label {
   position: relative;
-  padding-top: 3.5rem;
+  padding-top: 2rem;
 }
 .chapter + .chapter .chapter-label::before {
   content: "";

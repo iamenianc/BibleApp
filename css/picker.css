@@ -76,6 +76,18 @@
   padding: 0.5rem 1rem 0.9rem;
 }
 
+/* Public-domain attribution at the foot of the book list. */
+.pick-credit {
+  max-width: 32rem;
+  margin: 3rem auto 0;
+  padding: 0 1.4rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  text-align: center;
+  color: var(--dim);
+}
+
 .chapter-grid {
   display: grid;
   /* Fixed four-per-row grid, centred in a fixed-width column rather than

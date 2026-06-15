@@ -11,7 +11,12 @@ export const DEFAULT_START = { book: "JHN", chapter: 1 };
 export const UI_HIDE_DELAY = 2200;
 
 // Gentle automatic forward scroll.
-export const AUTOSCROLL_SPEED = 6;       // px per second at full speed
+// The base speed is tuned for the SMALLEST text size. As the reading size
+// grows, the drift speeds up in proportion to the font size, so the reading
+// pace (lines per second) stays roughly constant — but the multiplier is
+// capped at AUTOSCROLL_MAX_MULT so it never climbs past a medium pace.
+export const AUTOSCROLL_SPEED = 8;       // px per second at the smallest size
+export const AUTOSCROLL_MAX_MULT = 3;    // ceiling at the largest size (≈ medium pace)
 export const AUTOSCROLL_RESUME_DELAY = 50;  // ms of quiet before resuming after a manual scroll — almost instant
 export const AUTOSCROLL_TAP_DELAY = 4000;    // ms to stay paused after a deliberate tap/click, so the reader can dwell on a verse
 export const AUTOSCROLL_RAMP = 500;      // ms to ease from a standstill up to full speed

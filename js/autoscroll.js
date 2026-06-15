@@ -8,10 +8,15 @@
 import { els } from "./dom.js";
 import {
   AUTOSCROLL_SPEED,
+  AUTOSCROLL_MAX_MULT,
   AUTOSCROLL_RESUME_DELAY,
   AUTOSCROLL_RAMP,
   WHEEL_SENSITIVITY,
 } from "./config.js";
+
+// Effective drift speed (px/s). Starts at the base (smallest-size) pace and is
+// raised by setAutoScrollScale as the reading size grows, capped at medium.
+let speed = AUTOSCROLL_SPEED;
 
 let running = false;     // the rAF loop is active and allowed to move
 let rafId = null;
@@ -41,7 +46,7 @@ function frame(t) {
   const ramp = Math.min(1, elapsed / AUTOSCROLL_RAMP);
   const eased = ramp * ramp * (3 - 2 * ramp); // smoothstep
 
-  pos += AUTOSCROLL_SPEED * eased * dt;
+  pos += speed * eased * dt;
   const el = els.reader;
   const max = el.scrollHeight - el.clientHeight;
   const next = Math.min(max, pos);
@@ -66,6 +71,17 @@ function stopLoop() {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
+}
+
+/**
+ * Scale the drift speed for the current reading size. `ratio` is the current
+ * font size relative to the smallest (1 at the floor). Speed grows with it so
+ * the reading pace stays constant, but is capped at AUTOSCROLL_MAX_MULT so it
+ * never exceeds a medium pace at the largest sizes.
+ */
+export function setAutoScrollScale(ratio) {
+  const mult = Math.min(AUTOSCROLL_MAX_MULT, Math.max(1, ratio));
+  speed = AUTOSCROLL_SPEED * mult;
 }
 
 /** Begin (or resume) the gentle drift now, easing up to speed. */

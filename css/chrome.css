@@ -11,8 +11,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  padding: calc(env(safe-area-inset-top) + 0.9rem) 1rem 0.9rem;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0));
+  padding: calc(env(safe-area-inset-top) + 2rem) 1rem 0.9rem;
+  /* Gradient background with soft transparent edges so text fades smoothly
+     rather than being cut off abruptly. */
+  background: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 80%,
+    transparent 100%
+  );
   transition: opacity 0.5s ease, transform 0.5s ease;
   pointer-events: none;
 }
