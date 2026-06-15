@@ -16,9 +16,43 @@ import {
   TOUCH_SENSITIVITY,
 } from "./config.js";
 
+// User-chosen scroll pace: 0=off, 1=slow, 2=medium (default), 3=fast.
+const PACE_KEY = "theword:pace";
+const PACE_MULTS = [0, 0.4, 1, 2.5];
+let userPaceIdx = 2;
+let userPaceMult = 1;
+
+// Load saved pace immediately so initAutoScroll can respect it.
+try {
+  const v = parseInt(localStorage.getItem(PACE_KEY), 10);
+  if (v >= 0 && v <= 3) { userPaceIdx = v; userPaceMult = PACE_MULTS[v]; }
+} catch (_) { /* ignore */ }
+
+export function getUserPace() { return userPaceIdx; }
+
+export function setUserPace(idx) {
+  userPaceIdx = idx;
+  try { localStorage.setItem(PACE_KEY, String(idx)); } catch (_) { /* ignore */ }
+  if (idx === 0) {
+    enabled = false;
+    pauseAutoScroll();
+  } else {
+    userPaceMult = PACE_MULTS[idx];
+    applySpeed();
+    if (!enabled) { enabled = true; nudgeAutoScroll(); }
+  }
+}
+
 // Effective drift speed (px/s). Starts at the base (smallest-size) pace and is
 // raised by setAutoScrollScale as the reading size grows, capped at medium.
 let speed = AUTOSCROLL_SPEED;
+let currentSizeRatio = 1;
+
+function applySpeed() {
+  const boosted = Math.pow(Math.max(1, currentSizeRatio), AUTOSCROLL_SPEED_EXP);
+  const sizeMult = Math.min(AUTOSCROLL_MAX_MULT, boosted);
+  speed = AUTOSCROLL_SPEED * sizeMult * userPaceMult;
+}
 
 let running = false;     // the rAF loop is active and allowed to move
 let rafId = null;
@@ -82,9 +116,8 @@ function stopLoop() {
  * noticeably while small sizes stay gentle, capped at AUTOSCROLL_MAX_MULT.
  */
 export function setAutoScrollScale(ratio) {
-  const boosted = Math.pow(Math.max(1, ratio), AUTOSCROLL_SPEED_EXP);
-  const mult = Math.min(AUTOSCROLL_MAX_MULT, boosted);
-  speed = AUTOSCROLL_SPEED * mult;
+  currentSizeRatio = ratio;
+  applySpeed();
 }
 
 /** Begin (or resume) the gentle drift now, easing up to speed. */
@@ -213,7 +246,7 @@ function onTouchEnd() {
 }
 
 export function initAutoScroll() {
-  enabled = true;
+  enabled = userPaceIdx !== 0;
   lastTop = els.reader.scrollTop;
 
   // A finger/mouse down freezes the drift at once, so no programmatic scroll

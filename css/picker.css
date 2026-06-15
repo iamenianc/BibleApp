@@ -36,7 +36,8 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 0.8rem 2rem;
+  /* extra bottom pad so the config bar doesn't clip the last item */
+  padding: 0 0.8rem 3.5rem;
 }
 
 /* Two testament columns: OT right-aligned, NT left-aligned. */
@@ -117,3 +118,111 @@
   color: var(--fg);
   border-color: var(--dim);
 }
+
+/* ── Config bar & panel ─────────────────────────────── */
+
+#config-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  /* gradient fade so it blends into the list above without cutting it off */
+  background: linear-gradient(to top, rgba(0,0,0,0.96) 55%, transparent);
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease, color 0.2s;
+  z-index: 10;
+}
+#config-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+#config-bar:hover { color: var(--accent); }
+#config-bar:active { color: var(--fg); }
+.cfg-gear { width: 13px; height: 13px; flex-shrink: 0; }
+
+#config-panel {
+  position: absolute;
+  bottom: 44px;
+  left: 0;
+  right: 0;
+  background: rgba(8,8,7,0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--faint);
+  padding: 1rem 1.4rem 1.1rem;
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 9;
+}
+#config-panel.open { display: flex; }
+
+.cfg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+.cfg-label {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+.cfg-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.cfg-btn {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--accent);
+  padding: 0.28rem 0.65rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.35rem;
+  line-height: 1;
+  transition: border-color 0.2s, color 0.2s;
+}
+.cfg-btn:active { color: var(--fg); border-color: var(--dim); }
+.cfg-btn:disabled { opacity: 0.28; pointer-events: none; }
+.cfg-val {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--fg);
+  min-width: 2.8rem;
+  text-align: center;
+}
+.cfg-pace {
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  color: var(--dim);
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--faint);
+  border-radius: 0.35rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.cfg-pace.active {
+  color: var(--fg);
+  border-color: var(--accent);
+  background: rgba(185,180,168,0.07);
+}
+.cfg-pace:active { color: var(--fg); }

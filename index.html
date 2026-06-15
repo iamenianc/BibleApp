@@ -44,6 +44,31 @@
       <button class="overlay-close" id="overlay-close" aria-label="Close">×</button>
     </div>
     <div id="picker-list"></div>
+    <div id="config-panel" aria-hidden="true">
+      <div class="cfg-row">
+        <span class="cfg-label">Text size</span>
+        <div class="cfg-ctrl">
+          <button class="cfg-btn" id="cfg-size-down" aria-label="Smaller text">A−</button>
+          <span class="cfg-val" id="cfg-size-val"></span>
+          <button class="cfg-btn" id="cfg-size-up" aria-label="Larger text">A+</button>
+        </div>
+      </div>
+      <div class="cfg-row">
+        <span class="cfg-label">Auto-scroll</span>
+        <div class="cfg-ctrl" id="cfg-pace-wrap">
+          <button class="cfg-pace" data-pace="0">Off</button>
+          <button class="cfg-pace" data-pace="1">Slow</button>
+          <button class="cfg-pace" data-pace="2">Medium</button>
+          <button class="cfg-pace" data-pace="3">Fast</button>
+        </div>
+      </div>
+    </div>
+    <div id="config-bar" role="button" tabindex="0" aria-label="Open settings" aria-expanded="false">
+      <svg class="cfg-gear" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+        <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.92c.04-.32.07-.66.07-1.08s-.03-.76-.07-1.08l2.32-1.8c.21-.17.27-.46.13-.7l-2.2-3.79c-.14-.25-.42-.33-.67-.25l-2.73 1.1c-.57-.44-1.18-.81-1.85-1.09l-.41-2.9c-.04-.27-.27-.46-.55-.46h-4.4c-.28 0-.5.19-.54.46l-.41 2.9c-.68.28-1.29.65-1.86 1.09l-2.73-1.1c-.25-.1-.53 0-.67.25l-2.2 3.79c-.14.25-.07.53.14.7l2.31 1.8c-.04.32-.07.65-.07 1.08s.03.76.07 1.08l-2.31 1.8c-.21.17-.28.46-.14.7l2.2 3.79c.14.25.42.33.67.25l2.73-1.1c.57.44 1.18.81 1.86 1.09l.41 2.9c.04.27.26.46.54.46h4.4c.28 0 .51-.19.55-.46l.41-2.9c.67-.28 1.28-.65 1.85-1.09l2.73 1.1c.25.1.53 0 .67-.25l2.2-3.79c.14-.24.07-.53-.13-.7l-2.32-1.8z"/>
+      </svg>
+      <span>Settings</span>
+    </div>
   </div>
 
   <div id="status">

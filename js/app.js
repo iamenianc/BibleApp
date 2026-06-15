@@ -6,6 +6,7 @@ import { saveLast, loadLast } from "./store.js";
 import { initChrome, revealUI } from "./chrome.js";
 import { initFeed, startFeed } from "./scroll.js";
 import { openBooks, closeOverlay } from "./picker.js";
+import { initSettings } from "./settings.js";
 import { showStatus, hideStatus } from "./status.js";
 import { registerSW } from "./pwa.js";
 import { initTextSize } from "./textsize.js";
@@ -37,6 +38,7 @@ async function goTo(bookId, chapter) {
 function wireEvents() {
   initChrome();
   initTextSize();
+  initSettings();
   initVerseReveal();
   initAudio();
   // live-update the reference and remembered position as chapters scroll past

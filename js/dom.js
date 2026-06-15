@@ -14,6 +14,12 @@ export const els = {
   overlayTitle: $("overlay-title"),
   overlayClose: $("overlay-close"),
   pickerList: $("picker-list"),
+  configBar: $("config-bar"),
+  configPanel: $("config-panel"),
+  cfgSizeDown: $("cfg-size-down"),
+  cfgSizeUp: $("cfg-size-up"),
+  cfgSizeVal: $("cfg-size-val"),
+  cfgPaceWrap: $("cfg-pace-wrap"),
   status: $("status"),
   statusText: $("status-text"),
 };

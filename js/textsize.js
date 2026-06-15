@@ -47,6 +47,10 @@ function setLevel(n) {
   persist();
 }
 
+export function getTextLevel() { return level; }
+export function textLevelDown() { setLevel(level - 1); }
+export function textLevelUp() { setLevel(level + 1); }
+
 export function initTextSize() {
   let saved = DEFAULT_LEVEL;
   try {
