@@ -31,5 +31,6 @@ function onScroll() {
 }
 
 export function initChrome() {
-  window.addEventListener("scroll", onScroll, { passive: true });
+  // #reader is the scroll container (see reader.css), not the window
+  els.reader.addEventListener("scroll", onScroll, { passive: true });
 }

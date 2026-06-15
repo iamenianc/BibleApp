@@ -34,6 +34,9 @@ html, body {
 body {
   min-height: 100vh;
   min-height: 100dvh;
+  /* #reader is the scroll container so the fade mask can stay fixed to the
+     viewport while text scrolls through it */
+  overflow: hidden;
 }
 
 button {

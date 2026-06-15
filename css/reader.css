@@ -1,9 +1,33 @@
 /* reader.css — the reading surface: continuous prose, tap-to-reveal verses */
 
 #reader {
-  max-width: 38rem;
-  margin: 0 auto;
-  padding: 28vh 1.6rem 60vh;
+  /* the scroll container: fixed to the viewport so the fade mask stays put
+     while the text scrolls through it, fading smoothly at top and bottom */
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* inner column */
+  padding: 30vh max(1.6rem, calc((100% - 38rem) / 2 + 1.6rem)) 55vh;
+
+  /* soothing pixel-level fade: transparent at the edges, opaque in the
+     central reading band. Text passes through this gradient as you scroll. */
+  --fade: 22vh;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent 100%
+  );
+          mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade),
+    #000 calc(100% - var(--fade)),
+    transparent 100%
+  );
 }
 
 .chapter-label {
@@ -23,11 +47,7 @@
   font-size: calc(var(--read-size) * 0.82);
   line-height: 1.9;
   margin-bottom: 0.6rem;
-
-  opacity: 0.12;
-  transition: opacity 0.7s ease;
 }
-.hebrew-subtitle.in { opacity: 1; }
 
 /*
  * Verses flow as continuous prose inside a paragraph block.
@@ -40,15 +60,7 @@
   color: var(--fg);
   margin: 0 0 0.2rem;
   text-indent: 0;            /* every line flush-left, no paragraph indent */
-
-  /* gentle fade band driven by IntersectionObserver */
-  opacity: 0.12;
-  filter: blur(0.4px);
-  transition: opacity 0.7s ease, filter 0.7s ease, font-size 0.25s ease;
-}
-.flow.in {
-  opacity: 1;
-  filter: blur(0);
+  transition: font-size 0.25s ease;
 }
 
 /* poetry: honor line breaks, drop indentation (flat) */
@@ -71,24 +83,25 @@
   background: rgba(185, 180, 168, 0.10);
 }
 
-/* Verse number revealed on deliberate tap; hidden otherwise. */
+/* Verse number revealed on deliberate tap; fully collapsed otherwise so it
+   leaves no phantom indent at the start of a line. */
 .vnum {
   font-family: var(--sans);
   font-size: 0.6em;
   vertical-align: super;
   color: var(--accent);
-  margin-right: 0.3em;
-  margin-left: 0.1em;
   letter-spacing: 0;
 
   display: inline-block;
   max-width: 0;
+  margin: 0;                /* no margins while hidden — avoids a phantom indent */
   overflow: hidden;
   opacity: 0;
-  transition: max-width 0.25s ease, opacity 0.25s ease;
+  transition: max-width 0.25s ease, opacity 0.25s ease, margin 0.25s ease;
 }
 .verse.revealed .vnum {
   max-width: 4em;
+  margin: 0 0.3em 0 0.1em;  /* spacing only once visible */
   opacity: 1;
 }
 
@@ -124,9 +137,4 @@
   vertical-align: super;
   color: var(--dim);
   cursor: pointer;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .flow { transition: opacity 0.2s ease; filter: none; }
-  .flow:not(.in) { opacity: 0.4; }
 }

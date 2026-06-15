@@ -4,7 +4,6 @@ import { els } from "./dom.js";
 import { fetchBooks, fetchChapter } from "./api.js";
 import { saveLast, loadLast } from "./store.js";
 import { renderChapter } from "./render.js";
-import { setupFade } from "./fade.js";
 import { initChrome, revealUI } from "./chrome.js";
 import { openBooks, closeOverlay } from "./picker.js";
 import { showStatus, hideStatus } from "./status.js";
@@ -29,8 +28,7 @@ async function loadChapter(bookId, chapter) {
     els.prev.disabled = !data.previousChapterApiLink;
     els.next.disabled = !data.nextChapterApiLink;
 
-    setupFade();
-    window.scrollTo(0, 0);
+    els.reader.scrollTop = 0;
 
     saveLast({ book: data.book.id, chapter: data.chapter.number });
     hideStatus();
