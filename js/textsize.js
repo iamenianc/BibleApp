@@ -18,6 +18,21 @@ const LEVELS = [
   "60px", // 8
   "70px", // 9  very large
 ];
+// Line-height per level. Leading is unitless (a multiple of the font size), so
+// a fixed value leaves ever-wider gaps between lines as the text grows. The
+// leading tightens at the larger sizes so big text stays dense and readable
+// instead of filling the screen with blank space between lines.
+const LEADINGS = [
+  2.0,   // 1  20px
+  2.0,   // 2  25px
+  2.0,   // 3  30px
+  2.0,   // 4  35px
+  2.0,   // 5  40px  default — unchanged spacing
+  1.85,  // 6  45px  — start tightening
+  1.7,   // 7  50px
+  1.5,   // 8  60px
+  1.35,  // 9  70px  very large — dense
+];
 const DEFAULT_LEVEL = 5; // 1-based, the middle
 const MIN = 1;
 const MAX = LEVELS.length;
@@ -27,6 +42,7 @@ let level = DEFAULT_LEVEL;
 
 function apply() {
   document.documentElement.style.setProperty("--read-size", LEVELS[level - 1]);
+  document.documentElement.style.setProperty("--read-leading", LEADINGS[level - 1]);
   els.sizeDown.disabled = level <= MIN;
   els.sizeUp.disabled = level >= MAX;
   // Speed the drift up with the text size (capped at medium inside autoscroll).

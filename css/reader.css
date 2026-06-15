@@ -95,7 +95,9 @@
  */
 .flow {
   font-size: var(--read-size);
-  line-height: 2.0;
+  /* Leading tightens as the size grows (set per level in textsize.js) so large
+     text stays dense instead of stranding wide blank gaps between lines. */
+  line-height: var(--read-leading, 2.0);
   color: var(--fg);
   margin: 0 0 0.2rem;
   text-indent: 0;            /* every line flush-left, no paragraph indent */
@@ -106,7 +108,9 @@
 
 /* poetry: honor line breaks, drop indentation (flat) */
 .flow.poetry {
-  line-height: 1.55;       /* tighter than prose; the line breaks do the spacing */
+  /* keep poetry's existing ~0.78 ratio to prose so it tightens with size too,
+     but floor it at 1.3 so the largest sizes never let poem lines collide */
+  line-height: max(1.3, calc(var(--read-leading, 2.0) * 0.78));
   text-indent: 0;          /* poetry stays flush, not paragraph-indented */
 }
 .flow.poetry .poem-line { display: block; }
