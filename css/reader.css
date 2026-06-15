@@ -17,7 +17,7 @@
      keeping its labels legible; the opaque band sits high (≈top third) and
      the bottom fade runs the rest of the way, so the eye rests up top. */
   --fade-top: 28vh;
-  --fade-bottom: 58vh;
+  --fade-bottom: 72vh;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0,

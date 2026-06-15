@@ -4,6 +4,8 @@
 // so scrolling never reveals a number.
 
 import { els } from "./dom.js";
+import { nudgeAutoScroll } from "./autoscroll.js";
+import { AUTOSCROLL_TAP_DELAY } from "./config.js";
 
 const MOVE_TOLERANCE = 10; // px — beyond this, it's a scroll, not a tap
 const TIME_TOLERANCE = 500; // ms — beyond this, treat as a long press/drag
@@ -50,7 +52,14 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
-  if (moved || Date.now() - startT > TIME_TOLERANCE) return; // a scroll/drag
+  // The drift was frozen on pointerdown; decide how soon it resumes.
+  // A scroll/drag (or long press) resumes almost instantly; a deliberate
+  // tap holds the pause longer so the reader can dwell on a verse.
+  if (moved || Date.now() - startT > TIME_TOLERANCE) {
+    nudgeAutoScroll(); // fast resume — default delay
+    return;
+  }
+  nudgeAutoScroll(AUTOSCROLL_TAP_DELAY);
 
   const target = e.target;
 

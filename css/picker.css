@@ -78,9 +78,15 @@
 
 .chapter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(3.2rem, 1fr));
-  gap: 0.5rem;
-  padding: 0.5rem 1rem 2rem;
+  /* Fixed four-per-row grid, centred in a fixed-width column rather than
+     stretching to fill the viewport. */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 24rem;       /* fixed-width panel, doesn't sprawl on wide screens */
+  margin: 0 auto;         /* centred in the overlay */
+  padding: 0.5rem 1.4rem 2rem;  /* matches .overlay-head so the title sits above the grid */
+  box-sizing: border-box;
 }
 .chap-cell {
   font-family: var(--sans);
@@ -88,8 +94,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem;
-  font-size: 0.95rem;
+  border-radius: 0.6rem;
+  font-size: 1.1rem;
   color: var(--dim);
   /* quiet, semi-transparent — a faint hairline, no glass */
   border: 1px solid var(--faint);

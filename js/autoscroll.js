@@ -17,7 +17,7 @@ let rafId = null;
 let lastT = 0;           // timestamp of the previous frame
 let rampStart = 0;       // when the current motion began, for ease-in
 let resumeTimer = null;
-let carry = 0;           // sub-pixel remainder, so slow speeds still accrue
+let pos = 0;             // fractional scroll position we drive, for sub-pixel smoothness
 let lastTop = 0;         // last scrollTop we wrote, to detect manual scrolling
 let enabled = false;     // master switch (off until started)
 
@@ -32,16 +32,14 @@ function frame(t) {
   const ramp = Math.min(1, elapsed / AUTOSCROLL_RAMP);
   const eased = ramp * ramp * (3 - 2 * ramp); // smoothstep
 
-  carry += AUTOSCROLL_SPEED * eased * dt;
-  const step = Math.floor(carry);
-  if (step >= 1) {
-    carry -= step;
-    const el = els.reader;
-    const max = el.scrollHeight - el.clientHeight;
-    const next = Math.min(max, el.scrollTop + step);
-    el.scrollTop = next;
-    lastTop = next; // mark this as our own write, not a manual scroll
-  }
+  pos += AUTOSCROLL_SPEED * eased * dt;
+  const el = els.reader;
+  const max = el.scrollHeight - el.clientHeight;
+  const next = Math.min(max, pos);
+  // Write a fractional scrollTop: browsers render sub-pixel offsets, so the
+  // drift is continuous instead of stepping a whole pixel every few frames.
+  el.scrollTop = next;
+  lastTop = el.scrollTop; // read back what stuck, to recognize our own write
 
   rafId = requestAnimationFrame(frame);
 }
@@ -50,6 +48,7 @@ function startLoop() {
   if (rafId != null) return;
   lastT = 0;
   rampStart = performance.now();
+  pos = els.reader.scrollTop; // start from where the page actually is
   rafId = requestAnimationFrame(frame);
 }
 
@@ -79,14 +78,15 @@ export function pauseAutoScroll() {
 
 /**
  * Pause now and schedule a graceful resume once things have been quiet for
- * AUTOSCROLL_RESUME_DELAY. Called on every interaction (tap, drag, menu).
+ * `delay` ms. Manual scroll/wheel resume almost instantly (the default);
+ * a deliberate tap passes a longer delay so the reader can dwell on a verse.
  */
-export function nudgeAutoScroll() {
+export function nudgeAutoScroll(delay = AUTOSCROLL_RESUME_DELAY) {
   if (!enabled) return;
   running = false;
   stopLoop();
   clearTimeout(resumeTimer);
-  resumeTimer = setTimeout(resumeAutoScroll, AUTOSCROLL_RESUME_DELAY);
+  resumeTimer = setTimeout(resumeAutoScroll, delay);
 }
 
 function onManualScroll() {
@@ -100,10 +100,16 @@ export function initAutoScroll() {
   enabled = true;
   lastTop = els.reader.scrollTop;
 
-  // A hand on the page (drag / wheel) pauses and schedules a graceful resume.
+  // A finger/mouse down freezes the drift at once, so no programmatic scroll
+  // writes happen mid-gesture (those would corrupt tap detection and the
+  // menu-reveal tap). We don't schedule a resume here — that's owned by the
+  // gesture's outcome: a drag resumes fast via the scroll handler below, a
+  // deliberate tap resumes after a longer dwell via verses.js.
+  els.reader.addEventListener("pointerdown", pauseAutoScroll, { passive: true });
+
+  // A hand on the page (drag / wheel) pauses, then resumes almost instantly.
   els.reader.addEventListener("scroll", onManualScroll, { passive: true });
-  els.reader.addEventListener("wheel", nudgeAutoScroll, { passive: true });
-  els.reader.addEventListener("pointerdown", nudgeAutoScroll, { passive: true });
+  els.reader.addEventListener("wheel", () => nudgeAutoScroll(), { passive: true });
 
   // Don't drift while the tab is hidden.
   document.addEventListener("visibilitychange", () => {
