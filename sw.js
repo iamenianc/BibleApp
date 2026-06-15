@@ -4,7 +4,7 @@
 //   SHELL — the app's own files (cache-first, refreshed on activate)
 //   DATA  — helloao API responses (stale-while-revalidate, grows as you read)
 
-const VERSION = "v1";
+const VERSION = "v9";
 const SHELL_CACHE = `theword-shell-${VERSION}`;
 const DATA_CACHE = `theword-data-${VERSION}`;
 const API_HOST = "bible.helloao.org";
@@ -26,6 +26,9 @@ const SHELL_ASSETS = [
   "./js/fade.js",
   "./js/chrome.js",
   "./js/picker.js",
+  "./js/textsize.js",
+  "./js/verses.js",
+  "./js/pwa.js",
   "./js/app.js",
 ];
 
@@ -65,28 +68,36 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // same-origin app shell → cache-first
+  // same-origin app shell → stale-while-revalidate.
+  // Serves instantly from cache (and works offline) while always refreshing in
+  // the background, so HTML/CSS/JS edits land on the next view without needing
+  // a version bump.
   if (url.origin === self.location.origin) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(shellStaleWhileRevalidate(request));
   }
 });
 
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  try {
-    const res = await fetch(request);
-    const cache = await caches.open(SHELL_CACHE);
-    cache.put(request, res.clone());
-    return res;
-  } catch (err) {
-    // navigation fallback so the app still opens offline
-    if (request.mode === "navigate") {
-      const shell = await caches.match("./index.html");
-      if (shell) return shell;
-    }
-    throw err;
+async function shellStaleWhileRevalidate(request) {
+  const cache = await caches.open(SHELL_CACHE);
+  const cached = await cache.match(request);
+
+  const network = fetch(request)
+    .then((res) => {
+      if (res && res.ok) cache.put(request, res.clone());
+      return res;
+    })
+    .catch(() => null);
+
+  if (cached) return cached; // instant; fresh copy lands in cache for next time
+  const res = await network;
+  if (res) return res;
+
+  // offline and uncached → fall back to the app shell for navigations
+  if (request.mode === "navigate") {
+    const shell = await cache.match("./index.html");
+    if (shell) return shell;
   }
+  return new Response("Offline", { status: 503 });
 }
 
 async function staleWhileRevalidate(request) {

@@ -9,6 +9,8 @@ import { initChrome, revealUI } from "./chrome.js";
 import { openBooks, closeOverlay } from "./picker.js";
 import { showStatus, hideStatus } from "./status.js";
 import { registerSW } from "./pwa.js";
+import { initTextSize } from "./textsize.js";
+import { initVerseReveal, resetReveal } from "./verses.js";
 
 let books = [];
 let chapterData = null; // most recent chapter payload (holds prev/next links)
@@ -19,6 +21,7 @@ async function loadChapter(bookId, chapter) {
   try {
     const data = await fetchChapter(bookId, chapter);
     chapterData = data;
+    resetReveal();
 
     const bookName = renderChapter(data, books);
     els.ref.textContent = `${bookName} ${data.chapter.number}`;
@@ -49,6 +52,8 @@ function navByApiLink(link) {
 
 function wireEvents() {
   initChrome();
+  initTextSize();
+  initVerseReveal();
 
   els.ref.addEventListener("click", () => openBooks(books, loadChapter));
   els.overlayClose.addEventListener("click", closeOverlay);

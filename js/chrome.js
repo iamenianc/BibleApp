@@ -1,10 +1,13 @@
-// chrome.js — auto-hiding top/bottom bars driven by scroll & taps
+// chrome.js — top/bottom bars that auto-show when scrolling pauses, then fade out
+//
+// Tapping text is reserved for verse reveal (see verses.js); it never toggles
+// the bars. The bars surface briefly whenever scrolling stops.
 
 import { els } from "./dom.js";
 import { UI_HIDE_DELAY } from "./config.js";
 
 let hideTimer = null;
-let lastScroll = 0;
+let scrollIdleTimer = null;
 
 export function revealUI() {
   els.topbar.classList.remove("hidden");
@@ -20,23 +23,13 @@ export function hideUI() {
 }
 
 function onScroll() {
-  const y = window.scrollY;
-  if (Math.abs(y - lastScroll) > 4) {
-    // upward intent reveals; any downward reading motion hides
-    if (y < lastScroll - 8) revealUI();
-    else hideUI();
-  }
-  lastScroll = y;
-}
-
-/** Tap in the reading area toggles chrome (ignores footnote taps). */
-function onReaderClick(e) {
-  if (e.target.classList.contains("fn")) return;
-  if (els.topbar.classList.contains("hidden")) revealUI();
-  else hideUI();
+  // hide promptly while actively scrolling...
+  hideUI();
+  // ...and surface the bars briefly once motion stops
+  clearTimeout(scrollIdleTimer);
+  scrollIdleTimer = setTimeout(revealUI, 220);
 }
 
 export function initChrome() {
   window.addEventListener("scroll", onScroll, { passive: true });
-  els.reader.addEventListener("click", onReaderClick);
 }

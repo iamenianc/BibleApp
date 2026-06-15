@@ -23,7 +23,11 @@
   font-size: calc(var(--read-size) * 0.82);
   line-height: 1.9;
   margin-bottom: 0.6rem;
+
+  opacity: 0.12;
+  transition: opacity 0.7s ease;
 }
+.hebrew-subtitle.in { opacity: 1; }
 
 /*
  * Verses flow as continuous prose inside a paragraph block.
@@ -35,6 +39,7 @@
   line-height: 2.0;
   color: var(--fg);
   margin: 0 0 0.2rem;
+  text-indent: 0;            /* every line flush-left, no paragraph indent */
 
   /* gentle fade band driven by IntersectionObserver */
   opacity: 0.12;
@@ -47,8 +52,14 @@
 }
 
 /* poetry: honor line breaks, drop indentation (flat) */
-.flow.poetry { white-space: normal; }
+.flow.poetry {
+  line-height: 1.55;       /* tighter than prose; the line breaks do the spacing */
+  text-indent: 0;          /* poetry stays flush, not paragraph-indented */
+}
 .flow.poetry .poem-line { display: block; }
+/* a little breathing room between poetic verses, not between every line */
+.flow.poetry .verse { display: block; margin-bottom: 0.45rem; }
+.flow.poetry .verse:last-child { margin-bottom: 0; }
 
 /* Each verse is an inline span so prose stays continuous. */
 .verse {
@@ -80,6 +91,32 @@
   max-width: 4em;
   opacity: 1;
 }
+
+/* ----- Always-numbered books (e.g. Proverbs) ----- */
+/* Each verse starts on its own line, with its number inline at the very start
+   of that first line (no indent). The number sits beside the first words so it
+   clearly belongs to the verse it begins. */
+#reader.always-verses .verse {
+  display: block;
+  margin-bottom: 0.55rem;
+}
+#reader.always-verses .verse:last-child { margin-bottom: 0; }
+
+#reader.always-verses .vnum {
+  display: inline;          /* sits in line with the first words */
+  max-width: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0 0.45em 0 0;
+  font-size: 0.62em;
+  vertical-align: super;
+}
+
+/* Keep the first poem line on the same line as the number, then let the
+   remaining poem lines break normally beneath it. (.poem-line-first is set in
+   render.js; :first-of-type can't be used because .vnum is also a span.) */
+#reader.always-verses .verse .poem-line { display: block; }
+#reader.always-verses .verse .poem-line-first { display: inline; }
 
 .fn {
   font-family: var(--sans);

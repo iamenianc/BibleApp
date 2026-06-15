@@ -9,3 +9,6 @@ export const DEFAULT_START = { book: "JHN", chapter: 1 };
 
 // Auto-hide chrome after this idle period (ms).
 export const UI_HIDE_DELAY = 2200;
+
+// Books whose verse numbers are always shown (not tap-to-reveal).
+export const ALWAYS_NUMBERED_BOOKS = ["PRO"];
