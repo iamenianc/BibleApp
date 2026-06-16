@@ -49,6 +49,13 @@ export const TOUCH_MOMENTUM_STOP = 0.004;
 // a cap of N screens/s lets a flick coast at most ~N/(1000*DECAY) screens.
 export const TOUCH_MOMENTUM_MAX_SCREENS_PER_S = 2.5;
 
+// Floor on the launch velocity (same screen-heights-per-second units). Once a
+// gesture counts as a flick at all, momentum starts at least this fast so even
+// the tiniest flick produces a slight, satisfying glide instead of just bumping
+// the page a fraction and stopping. A still tap stays below the flick threshold
+// and is unaffected.
+export const TOUCH_MOMENTUM_MIN_SCREENS_PER_S = 0.4;
+
 // Books whose verse numbers are always shown (not tap-to-reveal).
 export const ALWAYS_NUMBERED_BOOKS = ["PRO"];
 
