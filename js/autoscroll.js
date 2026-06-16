@@ -8,6 +8,7 @@
 import { els } from "./dom.js";
 import {
   AUTOSCROLL_SPEED,
+  AUTOSCROLL_SPEED_MIN,
   AUTOSCROLL_SPEED_EXP,
   AUTOSCROLL_MAX_MULT,
   AUTOSCROLL_RESUME_DELAY,
@@ -52,6 +53,9 @@ function applySpeed() {
   const boosted = Math.pow(Math.max(1, currentSizeRatio), AUTOSCROLL_SPEED_EXP);
   const sizeMult = Math.min(AUTOSCROLL_MAX_MULT, boosted);
   speed = AUTOSCROLL_SPEED * sizeMult * userPaceMult;
+  // Hold a minimum drift while moving, so the smallest sizes (and slow pace)
+  // never crawl imperceptibly. Off (pace 0) stays off.
+  if (userPaceMult > 0) speed = Math.max(speed, AUTOSCROLL_SPEED_MIN);
 }
 
 let running = false;     // the rAF loop is active and allowed to move
