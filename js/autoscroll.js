@@ -280,7 +280,16 @@ function onTouchEnd(e) {
   if (Math.abs(touchVel) < 0.02) return;
   // A backward (upward) flick is a deliberate stop — pause and stay paused.
   // A forward flick nudges and resumes after the usual quiet period.
-  reactToManualMove(touchVel);
+  // Keep the auto-scroll drift paused for the WHOLE glide, whichever way it
+  // goes. The drift loop and this momentum glide both write scrollTop, so
+  // letting the drift resume mid-glide makes them fight — that was the jank on
+  // a forward (upward) flick, where the drift would otherwise nudge back in
+  // while the glide was still running. We resume the drift only once the glide
+  // settles, and only for a forward flick; a backward flick is a deliberate
+  // stop and stays paused. This keeps both directions symmetrical.
+  const forward = touchVel > 0;
+  pauseAutoScroll();
+
   // Clamp the launch velocity into [min, max], scaled to the viewport
   // (screen-heights per second) so it feels consistent on any device. The cap
   // stops a violent flick going hyperspeed through several chapters; the floor
@@ -301,6 +310,9 @@ function onTouchEnd(e) {
       momentumId = requestAnimationFrame(tick);
     } else {
       momentumId = null;
+      // Glide settled: a forward flick eases the gentle drift back in; a
+      // backward flick stays paused.
+      if (forward) nudgeAutoScroll();
     }
   };
   momentumId = requestAnimationFrame(tick);
