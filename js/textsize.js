@@ -5,6 +5,7 @@
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
 import { setAutoScrollScale, noteProgrammaticScroll } from "./autoscroll.js";
+import { refreshReadingRef } from "./scroll.js";
 
 const SIZE_KEY = "theword:size";
 const LEVELS = [
@@ -101,10 +102,14 @@ function setLevelAnchored(n, focalX, focalY) {
   const anchor = anchorElementAt(focalX, focalY);
   const before = anchor ? anchor.getBoundingClientRect().top : 0;
   setLevel(n);
-  if (!anchor) return;
-  const after = anchor.getBoundingClientRect().top;
-  reader.scrollTop += after - before;
-  noteProgrammaticScroll();
+  if (anchor) {
+    const after = anchor.getBoundingClientRect().top;
+    reader.scrollTop += after - before;
+    noteProgrammaticScroll();
+  }
+  // Zoom changes how many verses fit the readable band, so the range may shift
+  // even when scrollTop doesn't — recompute it explicitly.
+  refreshReadingRef();
 }
 
 export function getTextLevel() { return level; }

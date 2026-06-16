@@ -49,13 +49,11 @@ export function keepUIAlive(ms = UI_HIDE_DELAY) {
   hideTimer = setTimeout(hideUI, ms);
 }
 
-// The chapter currently in the reading band, shown on the bottom orientation
-// bar: book name on the left, verse range (chapter:1 – chapter:last) on the right.
-export function setReadingRef({ bookName, chapter, verses }) {
+// What's readable on screen right now, shown on the bottom orientation bar:
+// book name on the left, the visible verse range (e.g. "1:5 – 1:9") on the right.
+export function setReadingRef({ bookName, range }) {
   els.bbBook.textContent = bookName || "";
-  const last = Number(verses) || 0;
-  els.bbRange.textContent =
-    chapter && last ? `${chapter}:1 – ${chapter}:${last}` : "";
+  els.bbRange.textContent = range || "";
 }
 
 function onScroll() {

@@ -165,8 +165,6 @@ export function buildChapter(data, books) {
   const isPoemVerse = (item) =>
     (item.content || []).some((p) => p && typeof p === "object" && p.poem);
   const verses = data.chapter.content.filter((i) => i.type === "verse");
-  // Last verse number — the chapter's verse-range end, surfaced for the picker.
-  section.dataset.verses = verses.length ? verses[verses.length - 1].number : 0;
   const anyPoem = verses.some(isPoemVerse);
   const anyProse = verses.some((v) => !isPoemVerse(v));
   const renderPoetry = anyPoem && !anyProse;
