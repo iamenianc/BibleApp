@@ -34,6 +34,14 @@ export const WHEEL_SENSITIVITY = 0.25;
 // naturally, while the wheel above stays slowed.
 export const TOUCH_SENSITIVITY = 0.9;
 
+// After the finger lifts, the page keeps gliding and slows exponentially.
+// DECAY is the per-millisecond falloff: lower = more inertia, a longer and
+// gentler glide (closer to native momentum); higher stops sooner. STOP is the
+// velocity (px/ms) at which the glide is considered finished — a small value
+// lets the tail ease all the way out instead of cutting off abruptly.
+export const TOUCH_MOMENTUM_DECAY = 0.0014;
+export const TOUCH_MOMENTUM_STOP = 0.004;
+
 // Books whose verse numbers are always shown (not tap-to-reveal).
 export const ALWAYS_NUMBERED_BOOKS = ["PRO"];
 

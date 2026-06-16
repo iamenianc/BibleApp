@@ -15,6 +15,8 @@ import {
   AUTOSCROLL_RAMP,
   WHEEL_SENSITIVITY,
   TOUCH_SENSITIVITY,
+  TOUCH_MOMENTUM_DECAY,
+  TOUCH_MOMENTUM_STOP,
 } from "./config.js";
 
 // User-chosen scroll pace, as a percentage for fine control: 0 = off, 100 = the
@@ -248,7 +250,13 @@ function onTouchMove(e) {
 
   const dt = now - touchLastMoveT;
   touchLastMoveT = now;
-  if (dt > 0) touchVel = dy / dt; // px per ms, for the release glide
+  if (dt > 0) {
+    // Smooth the velocity (exponential moving average) so the release glide
+    // reflects the whole flick, not a single noisy last sample — a fluid,
+    // consistent hand-off into momentum instead of a jumpy one.
+    const instV = dy / dt; // px per ms
+    touchVel = touchVel === 0 ? instV : touchVel * 0.6 + instV * 0.4;
+  }
 
   scrollByPixels(dy);
   e.preventDefault(); // we own the scroll; stop the browser doing its own
@@ -273,14 +281,13 @@ function onTouchEnd(e) {
   reactToManualMove(touchVel);
   let v = touchVel;
   let last = performance.now();
-  const decay = 0.0025; // higher = stops sooner
   const tick = (t) => {
     const dt = t - last;
     last = t;
     const moved = scrollByPixels(v * dt);
-    v *= Math.exp(-decay * dt); // exponential slowdown
-    // Keep gliding until the velocity fades or we hit an edge.
-    if (Math.abs(v) > 0.01 && moved !== 0) {
+    v *= Math.exp(-TOUCH_MOMENTUM_DECAY * dt); // gentle exponential slowdown
+    // Keep gliding until the velocity fades to a near-stop or we hit an edge.
+    if (Math.abs(v) > TOUCH_MOMENTUM_STOP && moved !== 0) {
       momentumId = requestAnimationFrame(tick);
     } else {
       momentumId = null;
