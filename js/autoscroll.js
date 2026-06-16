@@ -17,22 +17,30 @@ import {
   TOUCH_SENSITIVITY,
 } from "./config.js";
 
-// User-chosen scroll pace, as a percentage of the base speed for fine control:
-// 0 = off, 100 = the old "medium" (1.0x), up to PACE_MAX. The continuous value
-// replaces the old off/slow/medium/fast steps with a precise slider.
+// User-chosen scroll pace, as a percentage for fine control: 0 = off, 100 = the
+// default (1.0x), up to PACE_MAX. The percentage is mapped through PACE_EXP so
+// the slider has a wide, punchy range instead of a weak linear response — 100%
+// still lands on 1.0x, but the ends pull much further apart.
 const PACE_KEY = "theword:pace-pct";
 export const PACE_MIN = 0;       // off
-export const PACE_MAX = 300;     // 3.0x
-export const PACE_DEFAULT = 100; // 1.0x — the former "medium"
+export const PACE_MAX = 300;     // slider top
+export const PACE_DEFAULT = 100; // 1.0x
+const PACE_EXP = 1.8;            // >1 widens the slider's effect per step
 let userPacePct = PACE_DEFAULT;
 let userPaceMult = 1;
+
+// Map a slider percentage to a speed multiplier. 100% -> 1.0x; the exponent
+// stretches the range so e.g. 300% reaches ~7x and 50% drops to ~0.3x.
+function paceMultFromPct(pct) {
+  return Math.pow(pct / 100, PACE_EXP);
+}
 
 // Load saved pace immediately so initAutoScroll can respect it.
 try {
   const v = parseInt(localStorage.getItem(PACE_KEY), 10);
   if (Number.isFinite(v) && v >= PACE_MIN && v <= PACE_MAX) {
     userPacePct = v;
-    userPaceMult = v / 100;
+    userPaceMult = paceMultFromPct(v);
   }
 } catch (_) { /* ignore */ }
 
@@ -46,7 +54,7 @@ export function setUserPace(pct) {
     enabled = false;
     pauseAutoScroll();
   } else {
-    userPaceMult = pct / 100;
+    userPaceMult = paceMultFromPct(pct);
     applySpeed();
     if (!enabled) { enabled = true; nudgeAutoScroll(); }
   }
