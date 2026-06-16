@@ -3,17 +3,10 @@
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
 import { getTextLevel, textLevelDown, textLevelUp } from "./textsize.js";
-import { getUserPace, setUserPace, PACE_MIN, PACE_MAX } from "./autoscroll.js";
+import { getUserPace, setUserPace } from "./autoscroll.js";
 
 const LEVELS_TOTAL = 9;
 let barTimer = null;
-
-// Speed dial geometry + feel. The arc spans the full pace range; vertical drag
-// drives it at DIAL_SENS percent per pixel (so ~PACE_MAX/DIAL_SENS px of travel
-// sweeps the whole range).
-const DIAL_R = 52;
-const DIAL_C = 2 * Math.PI * DIAL_R;
-const DIAL_SENS = 1.0; // percent per px of upward drag
 
 function refreshSize() {
   const lvl = getTextLevel();
@@ -35,48 +28,26 @@ export function nudgePace(delta) {
   refreshPace();
 }
 
-// ── Hold-to-set speed dial (top-bar speed button) ───────────────
-// Press and hold the speed button to raise a dial, drag up/down to set the
-// pace live, release to dismiss. The button captures the pointer so the drag
-// keeps tracking even as the finger moves onto the dial.
-let dialActive = false;
-let dialStartY = 0;
-let dialStartPct = 0;
-
-function updateDial() {
+// ── Top-bar speed mode ──────────────────────────────────────────
+// Tapping the speed button transforms the top bar into a big auto-scroll speed
+// slider; "Done" returns it to the normal bar.
+function syncTopbarSpeed() {
   const pct = getUserPace();
-  const f = (pct - PACE_MIN) / (PACE_MAX - PACE_MIN);
-  els.speedDialArc.style.strokeDasharray = String(DIAL_C);
-  els.speedDialArc.style.strokeDashoffset = String(DIAL_C * (1 - f));
-  els.speedDialVal.textContent = pct === 0 ? "Off" : `${pct}%`;
+  els.topbarSpeedSlider.value = String(pct);
+  els.topbarSpeedVal.textContent = pct === 0 ? "Off" : `${pct}%`;
 }
 
-function onDialDown(e) {
-  e.preventDefault();
-  dialActive = true;
-  dialStartY = e.clientY;
-  dialStartPct = getUserPace();
-  try { els.speedBtn.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
-  els.speedDial.classList.add("visible");
-  els.speedDial.setAttribute("aria-hidden", "false");
-  updateDial();
-  keepUIAlive(600000); // hold the top bar open for as long as the dial is up
+function openSpeedMode() {
+  syncTopbarSpeed();
+  els.topbar.classList.add("speed-mode");
+  els.topbarSpeed.setAttribute("aria-hidden", "false");
+  keepUIAlive(600000); // hold the bar open while the slider is up
 }
 
-function onDialMove(e) {
-  if (!dialActive) return;
-  const dy = dialStartY - e.clientY; // drag up = faster
-  setUserPace(dialStartPct + dy * DIAL_SENS);
-  updateDial();
-  refreshPace(); // keep the settings slider in sync
-}
-
-function onDialUp(e) {
-  if (!dialActive) return;
-  dialActive = false;
-  try { els.speedBtn.releasePointerCapture(e.pointerId); } catch (_) { /* ignore */ }
-  els.speedDial.classList.remove("visible");
-  els.speedDial.setAttribute("aria-hidden", "true");
+export function closeSpeedMode() {
+  if (!els.topbar.classList.contains("speed-mode")) return;
+  els.topbar.classList.remove("speed-mode");
+  els.topbarSpeed.setAttribute("aria-hidden", "true");
   keepUIAlive(); // back to the normal fade-out
 }
 
@@ -124,9 +95,12 @@ export function initSettings() {
     refreshPace();
   });
 
-  // Hold-and-drag speed dial on the top-bar speed button.
-  els.speedBtn.addEventListener("pointerdown", onDialDown);
-  els.speedBtn.addEventListener("pointermove", onDialMove);
-  els.speedBtn.addEventListener("pointerup", onDialUp);
-  els.speedBtn.addEventListener("pointercancel", onDialUp);
+  // Tap the speed button → bar becomes a big speed slider; Done closes it.
+  els.speedBtn.addEventListener("click", openSpeedMode);
+  els.topbarSpeedDone.addEventListener("click", closeSpeedMode);
+  els.topbarSpeedSlider.addEventListener("input", () => {
+    setUserPace(Number(els.topbarSpeedSlider.value));
+    syncTopbarSpeed();
+    refreshPace(); // keep the settings-panel slider in sync
+  });
 }
