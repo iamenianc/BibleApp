@@ -3,7 +3,7 @@
 import { els } from "./dom.js";
 import { revealUI } from "./chrome.js";
 import { pauseAutoScroll, nudgeAutoScroll } from "./autoscroll.js";
-import { showConfigBar, hideConfigBar } from "./settings.js";
+import { showConfigBar, hideConfigBar, refreshConfigBar } from "./settings.js";
 
 // Books with order <= 39 are the Old Testament in the 66-book canon.
 const OT_MAX_ORDER = 39;
@@ -71,6 +71,7 @@ function renderChapterGrid(book, start, end, onPick, onBack) {
     grid.appendChild(cell);
   }
   els.pickerList.appendChild(grid);
+  refreshConfigBar(); // new view height: re-evaluate the bottom-margin reveal
 }
 
 /** Render the range picker for a long book; choosing a range opens its chapters. */
@@ -89,6 +90,7 @@ function openGroups(book, onPick) {
     grid.appendChild(cell);
   }
   els.pickerList.appendChild(grid);
+  refreshConfigBar(); // new view height: re-evaluate the bottom-margin reveal
 }
 
 /** Open the chapter selector for one book; onPick(bookId, chapter) starts reading. */

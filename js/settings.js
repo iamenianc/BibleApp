@@ -1,4 +1,4 @@
-// settings.js — config bar that slides in 2 s after the TOC opens
+// settings.js — config bar that reveals when the picker list reaches its bottom
 
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
@@ -6,7 +6,11 @@ import { getTextLevel, textLevelDown, textLevelUp } from "./textsize.js";
 import { getUserPace, setUserPace } from "./autoscroll.js";
 
 const LEVELS_TOTAL = 9;
-let barTimer = null;
+
+// The settings bar appears once the picker list is scrolled to within this many
+// px of the bottom — a "hit the bottom margin to reveal it" gesture, rather than
+// a timed pop-up.
+const BAR_BOTTOM_MARGIN = 48;
 
 function refreshSize() {
   const lvl = getTextLevel();
@@ -74,13 +78,31 @@ function togglePanel() {
   else openPanel();
 }
 
+// Reveal the bar only when the picker list is at (or near) its bottom; retract
+// it — and close any open panel — once the reader scrolls back up.
+function updateConfigBar() {
+  const el = els.pickerList;
+  const remaining = el.scrollHeight - el.scrollTop - el.clientHeight;
+  const atBottom = remaining <= BAR_BOTTOM_MARGIN;
+  els.configBar.classList.toggle("visible", atBottom);
+  if (!atBottom) closePanel();
+}
+
+// Re-check after the picker swaps in a new view (book list ↔ chapter grid):
+// the height and scroll position change without firing a scroll event.
+export function refreshConfigBar() {
+  updateConfigBar();
+}
+
 export function showConfigBar() {
-  clearTimeout(barTimer);
-  barTimer = setTimeout(() => els.configBar.classList.add("visible"), 2000);
+  // Track the picker's scroll position; the bar follows the bottom margin.
+  // (A stable handler reference means re-adding on reopen won't stack listeners.)
+  els.pickerList.addEventListener("scroll", updateConfigBar, { passive: true });
+  updateConfigBar();
 }
 
 export function hideConfigBar() {
-  clearTimeout(barTimer);
+  els.pickerList.removeEventListener("scroll", updateConfigBar);
   els.configBar.classList.remove("visible");
   closePanel();
 }
