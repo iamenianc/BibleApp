@@ -17,7 +17,6 @@ export const els = {
   topbarSpeed: $("topbar-speed"),
   topbarSpeedSlider: $("topbar-speed-slider"),
   topbarSpeedVal: $("topbar-speed-val"),
-  topbarSpeedDone: $("topbar-speed-done"),
   overlay: $("overlay"),
   overlayTitle: $("overlay-title"),
   overlayClose: $("overlay-close"),

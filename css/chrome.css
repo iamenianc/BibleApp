@@ -156,18 +156,6 @@
   text-align: right;
   flex-shrink: 0;
 }
-.ts-done {
-  font-family: var(--sans);
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  background: none;
-  border: none;
-  padding: 0.5rem 0.3rem 0.5rem 0.6rem;
-  flex-shrink: 0;
-}
-.ts-done:active { color: var(--fg); }
 
 /* Big, comfortable slider spanning the bar. */
 .ts-slider {

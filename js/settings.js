@@ -30,7 +30,10 @@ export function nudgePace(delta) {
 
 // ── Top-bar speed mode ──────────────────────────────────────────
 // Tapping the speed button transforms the top bar into a big auto-scroll speed
-// slider; "Done" returns it to the normal bar.
+// slider. There's no Done button: the bar is held open while the slider is in
+// use, then dismisses itself on the normal chrome fade-out once you stop.
+const SPEED_HOLD = 4000; // ms to keep the slider up after each adjustment
+
 function syncTopbarSpeed() {
   const pct = getUserPace();
   els.topbarSpeedSlider.value = String(pct);
@@ -41,14 +44,15 @@ function openSpeedMode() {
   syncTopbarSpeed();
   els.topbar.classList.add("speed-mode");
   els.topbarSpeed.setAttribute("aria-hidden", "false");
-  keepUIAlive(600000); // hold the bar open while the slider is up
+  keepUIAlive(SPEED_HOLD); // hold the slider up; the fade-out will dismiss it
 }
 
+// Quietly drop back to the normal bar. Called once the chrome has faded, so it
+// must not re-reveal the bar — it only resets the mode for the next reveal.
 export function closeSpeedMode() {
   if (!els.topbar.classList.contains("speed-mode")) return;
   els.topbar.classList.remove("speed-mode");
   els.topbarSpeed.setAttribute("aria-hidden", "true");
-  keepUIAlive(); // back to the normal fade-out
 }
 
 function openPanel() {
@@ -95,12 +99,19 @@ export function initSettings() {
     refreshPace();
   });
 
-  // Tap the speed button → bar becomes a big speed slider; Done closes it.
+  // Tap the speed button → bar becomes a big speed slider. It has no Done
+  // button: dragging keeps it alive, and it dismisses on the chrome fade-out.
   els.speedBtn.addEventListener("click", openSpeedMode);
-  els.topbarSpeedDone.addEventListener("click", closeSpeedMode);
   els.topbarSpeedSlider.addEventListener("input", () => {
     setUserPace(Number(els.topbarSpeedSlider.value));
     syncTopbarSpeed();
     refreshPace(); // keep the settings-panel slider in sync
+    keepUIAlive(SPEED_HOLD); // each adjustment defers the fade-out
+  });
+
+  // Once the top bar has faded out, reset speed mode so the next reveal shows
+  // the normal controls rather than the slider.
+  els.topbar.addEventListener("transitionend", () => {
+    if (els.topbar.classList.contains("hidden")) closeSpeedMode();
   });
 }
