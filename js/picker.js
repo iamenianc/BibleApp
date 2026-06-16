@@ -8,24 +8,6 @@ import { showConfigBar, hideConfigBar } from "./settings.js";
 // Books with order <= 39 are the Old Testament in the 66-book canon.
 const OT_MAX_ORDER = 39;
 
-// The chapter currently in the reading band, echoed on the picker's bottom bar:
-// book name on the left, verse range (chapter:1 – chapter:last) on the right.
-let readingRef = { bookName: "", chapter: "", verses: 0 };
-
-function paintRefBar() {
-  const { bookName, chapter, verses } = readingRef;
-  els.cfgRefBook.textContent = bookName || "";
-  const last = Number(verses) || 0;
-  els.cfgRefRange.textContent =
-    chapter && last ? `${chapter}:1 – ${chapter}:${last}` : "";
-}
-
-/** Track the chapter being read so the picker bar can show its reference. */
-export function setReadingRef(ref) {
-  readingRef = { ...readingRef, ...ref };
-  paintRefBar();
-}
-
 function clearList() {
   els.pickerList.innerHTML = "";
 }

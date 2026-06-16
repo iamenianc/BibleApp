@@ -26,6 +26,43 @@
 #topbar > * { pointer-events: auto; }
 #topbar.hidden { opacity: 0; transform: translateY(-110%); }
 
+/* Bottom orientation bar — mirrors the top bar's reveal/fade, gradient rising
+   from the bottom edge. Book name on the left, verse range on the right, in the
+   same quiet uppercase chrome palette. */
+#bottombar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.9rem 1.2rem calc(env(safe-area-inset-bottom) + 1.2rem);
+  background: linear-gradient(
+    to top,
+    #000 0%,
+    #000 80%,
+    transparent 100%
+  );
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#bottombar.hidden { opacity: 0; transform: translateY(110%); }
+.bb-book,
+.bb-range {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bb-book { text-align: left; }
+.bb-range { text-align: right; }
+
 /* Left (audio) and right (text-size) control clusters. Equal flex-basis keeps
    the reference label optically centered between them. */
 .bar-group {

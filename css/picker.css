@@ -130,10 +130,8 @@
   height: 44px;
   display: flex;
   align-items: center;
-  /* book name hugs the left corner, verse range the right, Settings centred */
-  justify-content: space-between;
-  padding: 0 1.4rem;
-  gap: 0.6rem;
+  justify-content: center;
+  gap: 0.45rem;
   /* gradient fade so it blends into the list above without cutting it off */
   background: linear-gradient(to top, rgba(0,0,0,0.96) 55%, transparent);
   font-family: var(--sans);
@@ -158,28 +156,6 @@
 #config-bar:hover { color: var(--accent); }
 #config-bar:active { color: var(--fg); }
 .cfg-gear { width: 13px; height: 13px; flex-shrink: 0; }
-
-/* Settings cluster keeps the gear + label together, dead-centre. */
-.cfg-settings {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-shrink: 0;
-}
-/* Contextual reading reference flanking the Settings cluster. */
-.cfg-ref-book,
-.cfg-ref-range {
-  flex: 1 1 0;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--dim);
-  text-transform: none;   /* a book name and verse range read better unforced */
-  letter-spacing: 0.04em;
-}
-.cfg-ref-book { text-align: left; }
-.cfg-ref-range { text-align: right; }
 
 #config-panel {
   position: absolute;

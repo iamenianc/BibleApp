@@ -27,6 +27,7 @@ let tapMoved = false;
 
 export function revealUI() {
   els.topbar.classList.remove("hidden");
+  els.bottombar.classList.remove("hidden");
   clearTimeout(hideTimer);
   hideTimer = setTimeout(hideUI, UI_HIDE_DELAY);
 }
@@ -35,6 +36,7 @@ export function hideUI() {
   if (els.overlay.classList.contains("open")) return; // keep chrome while picking
   if (Date.now() < interactUntil) return; // keep chrome while using the controls
   els.topbar.classList.add("hidden");
+  els.bottombar.classList.add("hidden");
 }
 
 // Called while the reader is actively using a chrome control (e.g. text size).
@@ -42,8 +44,18 @@ export function hideUI() {
 export function keepUIAlive(ms = UI_HIDE_DELAY) {
   interactUntil = Date.now() + ms;
   els.topbar.classList.remove("hidden");
+  els.bottombar.classList.remove("hidden");
   clearTimeout(hideTimer);
   hideTimer = setTimeout(hideUI, ms);
+}
+
+// The chapter currently in the reading band, shown on the bottom orientation
+// bar: book name on the left, verse range (chapter:1 – chapter:last) on the right.
+export function setReadingRef({ bookName, chapter, verses }) {
+  els.bbBook.textContent = bookName || "";
+  const last = Number(verses) || 0;
+  els.bbRange.textContent =
+    chapter && last ? `${chapter}:1 – ${chapter}:${last}` : "";
 }
 
 function onScroll() {

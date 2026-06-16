@@ -3,9 +3,9 @@
 import { els } from "./dom.js";
 import { fetchBooks, fetchChapter } from "./api.js";
 import { saveLast, loadLast } from "./store.js";
-import { initChrome, revealUI } from "./chrome.js";
+import { initChrome, revealUI, setReadingRef } from "./chrome.js";
 import { initFeed, startFeed } from "./scroll.js";
-import { openBooks, closeOverlay, setReadingRef } from "./picker.js";
+import { openBooks, closeOverlay } from "./picker.js";
 import { initSettings } from "./settings.js";
 import { showStatus, hideStatus } from "./status.js";
 import { registerSW } from "./pwa.js";

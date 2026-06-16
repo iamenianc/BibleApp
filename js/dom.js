@@ -5,6 +5,9 @@ const $ = (id) => document.getElementById(id);
 export const els = {
   reader: $("reader"),
   topbar: $("topbar"),
+  bottombar: $("bottombar"),
+  bbBook: $("bb-book"),
+  bbRange: $("bb-range"),
   ref: $("ref-display"),
   sizeDown: $("size-down"),
   sizeUp: $("size-up"),
@@ -26,8 +29,6 @@ export const els = {
   cfgSizeVal: $("cfg-size-val"),
   cfgPaceSlider: $("cfg-pace-slider"),
   cfgPaceVal: $("cfg-pace-val"),
-  cfgRefBook: $("cfg-ref-book"),
-  cfgRefRange: $("cfg-ref-range"),
   status: $("status"),
   statusText: $("status-text"),
 };
