@@ -56,6 +56,17 @@ export const TOUCH_MOMENTUM_MAX_SCREENS_PER_S = 2.5;
 // and is unaffected.
 export const TOUCH_MOMENTUM_MIN_SCREENS_PER_S = 0.4;
 
+// The launch speed isn't a straight clamp of the finger velocity — after
+// sensitivity scaling and smoothing, almost every flick lands above the cap, so
+// a plain clamp made gentle and violent flicks feel identical. Instead the
+// finger velocity is mapped through a saturating curve between the floor and cap
+// (speed = min + (max-min)·(1 - e^(-|v|/scale))). This SCALE (screen-heights per
+// second) sets how quickly the curve climbs: a flick at SCALE reaches ~63% of
+// the way to the cap. Larger = more of the range spent climbing, so the spread
+// between a soft and a hard flick is wider. The cap is now only approached
+// asymptotically, so even a violent flick can't exceed it.
+export const TOUCH_MOMENTUM_VEL_SCALE_SCREENS_PER_S = 3.0;
+
 // Books whose verse numbers are always shown (not tap-to-reveal).
 export const ALWAYS_NUMBERED_BOOKS = ["PRO"];
 

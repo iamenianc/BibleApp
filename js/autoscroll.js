@@ -19,6 +19,7 @@ import {
   TOUCH_MOMENTUM_STOP,
   TOUCH_MOMENTUM_MAX_SCREENS_PER_S,
   TOUCH_MOMENTUM_MIN_SCREENS_PER_S,
+  TOUCH_MOMENTUM_VEL_SCALE_SCREENS_PER_S,
 } from "./config.js";
 
 // User-chosen scroll pace, as a percentage for fine control: 0 = off, 100 = the
@@ -290,14 +291,18 @@ function onTouchEnd(e) {
   const forward = touchVel > 0;
   pauseAutoScroll();
 
-  // Clamp the launch velocity into [min, max], scaled to the viewport
-  // (screen-heights per second) so it feels consistent on any device. The cap
-  // stops a violent flick going hyperspeed through several chapters; the floor
-  // gives even the tiniest flick a slight, satisfying glide rather than a bump.
+  // Map the finger velocity through a saturating curve into [min, max], scaled
+  // to the viewport (screen-heights per second) so it feels consistent on any
+  // device. A flat clamp made every flick above the cap feel the same; this
+  // curve spreads soft → hard flicks across the whole range, with the floor
+  // giving the tiniest flick a slight glide and the cap an asymptote a violent
+  // flick can approach but never exceed (no hyperspeed multi-chapter jumps).
   const h = els.reader.clientHeight;
   const minVel = (TOUCH_MOMENTUM_MIN_SCREENS_PER_S * h) / 1000;
   const maxVel = (TOUCH_MOMENTUM_MAX_SCREENS_PER_S * h) / 1000;
-  const speed = Math.min(maxVel, Math.max(minVel, Math.abs(touchVel)));
+  const scaleVel = (TOUCH_MOMENTUM_VEL_SCALE_SCREENS_PER_S * h) / 1000;
+  const climb = 1 - Math.exp(-Math.abs(touchVel) / scaleVel); // 0 → 1, saturating
+  const speed = minVel + (maxVel - minVel) * climb;
   let v = Math.sign(touchVel) * speed;
   let last = performance.now();
   const tick = (t) => {
