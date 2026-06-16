@@ -15,6 +15,10 @@ function clearList() {
 export function closeOverlay() {
   els.overlay.classList.remove("open");
   hideConfigBar();
+  // Re-arm the top bar's fade-out: while the overlay was open hideUI() was a
+  // no-op (it keeps chrome up during picking), so the bar would otherwise stay
+  // visible forever after returning to the chapter. revealUI schedules the hide.
+  revealUI();
   nudgeAutoScroll(); // resume drifting gracefully after the picker closes
 }
 
