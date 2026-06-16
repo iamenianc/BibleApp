@@ -82,6 +82,7 @@ function makeBandObserver() {
         book: current.dataset.book,
         bookName: current.dataset.bookName,
         chapter: current.dataset.chapter,
+        verses: current.dataset.verses,
       });
     },
     {

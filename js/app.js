@@ -5,7 +5,7 @@ import { fetchBooks, fetchChapter } from "./api.js";
 import { saveLast, loadLast } from "./store.js";
 import { initChrome, revealUI } from "./chrome.js";
 import { initFeed, startFeed } from "./scroll.js";
-import { openBooks, closeOverlay } from "./picker.js";
+import { openBooks, closeOverlay, setReadingRef } from "./picker.js";
 import { initSettings } from "./settings.js";
 import { showStatus, hideStatus } from "./status.js";
 import { registerSW } from "./pwa.js";
@@ -25,6 +25,9 @@ async function goTo(bookId, chapter) {
     startFeed(data);
     const name = data.book.commonName || data.book.name || bookId;
     els.ref.textContent = `${name} ${data.chapter.number}`;
+    const verses = data.chapter.content.filter((i) => i.type === "verse");
+    const lastVerse = verses.length ? verses[verses.length - 1].number : 0;
+    setReadingRef({ bookName: name, chapter: data.chapter.number, verses: lastVerse });
     setAudioChapter(data.book.id, data.chapter.number);
     saveLast({ book: data.book.id, chapter: data.chapter.number });
     hideStatus();
@@ -43,8 +46,9 @@ function wireEvents() {
   initVerseReveal();
   initAudio();
   // live-update the reference and remembered position as chapters scroll past
-  initFeed(books, ({ book, bookName, chapter }) => {
+  initFeed(books, ({ book, bookName, chapter, verses }) => {
     els.ref.textContent = `${bookName} ${chapter}`;
+    setReadingRef({ bookName, chapter, verses });
     setAudioChapter(book, Number(chapter));
     saveLast({ book, chapter: Number(chapter) });
   });

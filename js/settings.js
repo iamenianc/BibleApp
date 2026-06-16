@@ -1,4 +1,5 @@
-// settings.js — config bar that slides in 2 s after the TOC opens
+// settings.js — bottom bar that pops up with the picker (book name + verse
+// range flanking the Settings toggle)
 
 import { els } from "./dom.js";
 import { keepUIAlive } from "./chrome.js";
@@ -6,6 +7,9 @@ import { getTextLevel, textLevelDown, textLevelUp } from "./textsize.js";
 import { getUserPace, setUserPace } from "./autoscroll.js";
 
 const LEVELS_TOTAL = 9;
+// Short beat before the bottom bar slides in, so it reads as a "pop up" arriving
+// with the picker rather than appearing already-there.
+const BAR_REVEAL_DELAY = 150;
 let barTimer = null;
 
 function refreshSize() {
@@ -72,7 +76,7 @@ function togglePanel() {
 
 export function showConfigBar() {
   clearTimeout(barTimer);
-  barTimer = setTimeout(() => els.configBar.classList.add("visible"), 2000);
+  barTimer = setTimeout(() => els.configBar.classList.add("visible"), BAR_REVEAL_DELAY);
 }
 
 export function hideConfigBar() {

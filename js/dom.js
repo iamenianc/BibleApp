@@ -26,6 +26,8 @@ export const els = {
   cfgSizeVal: $("cfg-size-val"),
   cfgPaceSlider: $("cfg-pace-slider"),
   cfgPaceVal: $("cfg-pace-val"),
+  cfgRefBook: $("cfg-ref-book"),
+  cfgRefRange: $("cfg-ref-range"),
   status: $("status"),
   statusText: $("status-text"),
 };
