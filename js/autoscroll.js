@@ -17,6 +17,7 @@ import {
   TOUCH_SENSITIVITY,
   TOUCH_MOMENTUM_DECAY,
   TOUCH_MOMENTUM_STOP,
+  TOUCH_MOMENTUM_MAX_SCREENS_PER_S,
 } from "./config.js";
 
 // User-chosen scroll pace, as a percentage for fine control: 0 = off, 100 = the
@@ -279,7 +280,11 @@ function onTouchEnd(e) {
   // A backward (upward) flick is a deliberate stop — pause and stay paused.
   // A forward flick nudges and resumes after the usual quiet period.
   reactToManualMove(touchVel);
-  let v = touchVel;
+  // Cap the launch velocity so even a violent flick can't fling the page at
+  // hyperspeed through several chapters. The limit scales with the viewport
+  // (screen-heights per second) so it feels consistent on any device.
+  const maxVel = (TOUCH_MOMENTUM_MAX_SCREENS_PER_S * els.reader.clientHeight) / 1000;
+  let v = Math.max(-maxVel, Math.min(maxVel, touchVel));
   let last = performance.now();
   const tick = (t) => {
     const dt = t - last;

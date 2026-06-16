@@ -42,6 +42,13 @@ export const TOUCH_SENSITIVITY = 0.9;
 export const TOUCH_MOMENTUM_DECAY = 0.0014;
 export const TOUCH_MOMENTUM_STOP = 0.004;
 
+// Speed limit on the launch velocity of the release glide, in screen-heights
+// per second. Even a violent flick is clamped to this, so momentum can never go
+// "hyperspeed" and rocket through multiple chapters at once. Expressed relative
+// to the viewport so it feels the same on any device size. With the decay above,
+// a cap of N screens/s lets a flick coast at most ~N/(1000*DECAY) screens.
+export const TOUCH_MOMENTUM_MAX_SCREENS_PER_S = 2.5;
+
 // Books whose verse numbers are always shown (not tap-to-reveal).
 export const ALWAYS_NUMBERED_BOOKS = ["PRO"];
 
