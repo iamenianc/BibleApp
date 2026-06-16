@@ -19,7 +19,8 @@ export const els = {
   cfgSizeDown: $("cfg-size-down"),
   cfgSizeUp: $("cfg-size-up"),
   cfgSizeVal: $("cfg-size-val"),
-  cfgPaceWrap: $("cfg-pace-wrap"),
+  cfgPaceSlider: $("cfg-pace-slider"),
+  cfgPaceVal: $("cfg-pace-val"),
   status: $("status"),
   statusText: $("status-text"),
 };

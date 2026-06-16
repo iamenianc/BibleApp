@@ -15,10 +15,16 @@ function refreshSize() {
 }
 
 function refreshPace() {
-  const pace = getUserPace();
-  els.cfgPaceWrap.querySelectorAll(".cfg-pace").forEach((btn) => {
-    btn.classList.toggle("active", Number(btn.dataset.pace) === pace);
-  });
+  const pct = getUserPace();
+  els.cfgPaceSlider.value = String(pct);
+  els.cfgPaceVal.textContent = pct === 0 ? "Off" : `${pct}%`;
+}
+
+// Step the auto-scroll speed by `delta` percent and reflect it on the slider.
+// Exposed so external controls (e.g. keyboard / volume keys) can drive it too.
+export function nudgePace(delta) {
+  setUserPace(getUserPace() + delta);
+  refreshPace();
 }
 
 function openPanel() {
@@ -60,10 +66,8 @@ export function initSettings() {
   els.cfgSizeDown.addEventListener("click", () => { textLevelDown(); refreshSize(); });
   els.cfgSizeUp.addEventListener("click", () => { textLevelUp(); refreshSize(); });
 
-  els.cfgPaceWrap.addEventListener("click", (e) => {
-    const btn = e.target.closest(".cfg-pace");
-    if (!btn) return;
-    setUserPace(Number(btn.dataset.pace));
+  els.cfgPaceSlider.addEventListener("input", () => {
+    setUserPace(Number(els.cfgPaceSlider.value));
     refreshPace();
   });
 }

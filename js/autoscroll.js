@@ -17,28 +17,36 @@ import {
   TOUCH_SENSITIVITY,
 } from "./config.js";
 
-// User-chosen scroll pace: 0=off, 1=slow, 2=medium (default), 3=fast.
-const PACE_KEY = "theword:pace";
-const PACE_MULTS = [0, 0.4, 1, 2.5];
-let userPaceIdx = 2;
+// User-chosen scroll pace, as a percentage of the base speed for fine control:
+// 0 = off, 100 = the old "medium" (1.0x), up to PACE_MAX. The continuous value
+// replaces the old off/slow/medium/fast steps with a precise slider.
+const PACE_KEY = "theword:pace-pct";
+export const PACE_MIN = 0;       // off
+export const PACE_MAX = 300;     // 3.0x
+export const PACE_DEFAULT = 100; // 1.0x — the former "medium"
+let userPacePct = PACE_DEFAULT;
 let userPaceMult = 1;
 
 // Load saved pace immediately so initAutoScroll can respect it.
 try {
   const v = parseInt(localStorage.getItem(PACE_KEY), 10);
-  if (v >= 0 && v <= 3) { userPaceIdx = v; userPaceMult = PACE_MULTS[v]; }
+  if (Number.isFinite(v) && v >= PACE_MIN && v <= PACE_MAX) {
+    userPacePct = v;
+    userPaceMult = v / 100;
+  }
 } catch (_) { /* ignore */ }
 
-export function getUserPace() { return userPaceIdx; }
+export function getUserPace() { return userPacePct; }
 
-export function setUserPace(idx) {
-  userPaceIdx = idx;
-  try { localStorage.setItem(PACE_KEY, String(idx)); } catch (_) { /* ignore */ }
-  if (idx === 0) {
+export function setUserPace(pct) {
+  pct = Math.max(PACE_MIN, Math.min(PACE_MAX, Math.round(pct)));
+  userPacePct = pct;
+  try { localStorage.setItem(PACE_KEY, String(pct)); } catch (_) { /* ignore */ }
+  if (pct === 0) {
     enabled = false;
     pauseAutoScroll();
   } else {
-    userPaceMult = PACE_MULTS[idx];
+    userPaceMult = pct / 100;
     applySpeed();
     if (!enabled) { enabled = true; nudgeAutoScroll(); }
   }
@@ -274,7 +282,7 @@ function onTouchEnd(e) {
 }
 
 export function initAutoScroll() {
-  enabled = userPaceIdx !== 0;
+  enabled = userPacePct !== 0;
   lastTop = els.reader.scrollTop;
 
   // A finger/mouse down freezes the drift at once, so no programmatic scroll

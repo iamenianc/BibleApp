@@ -55,11 +55,11 @@
       </div>
       <div class="cfg-row">
         <span class="cfg-label">Auto-scroll</span>
-        <div class="cfg-ctrl" id="cfg-pace-wrap">
-          <button class="cfg-pace" data-pace="0">Off</button>
-          <button class="cfg-pace" data-pace="1">Slow</button>
-          <button class="cfg-pace" data-pace="2">Medium</button>
-          <button class="cfg-pace" data-pace="3">Fast</button>
+        <div class="cfg-ctrl cfg-ctrl-slider">
+          <input type="range" id="cfg-pace-slider" class="cfg-slider"
+                 min="0" max="300" step="5" value="100"
+                 aria-label="Auto-scroll speed" />
+          <span class="cfg-val" id="cfg-pace-val"></span>
         </div>
       </div>
     </div>
