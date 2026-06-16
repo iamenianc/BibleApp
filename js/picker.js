@@ -8,8 +8,32 @@ import { showConfigBar, hideConfigBar } from "./settings.js";
 // Books with order <= 39 are the Old Testament in the 66-book canon.
 const OT_MAX_ORDER = 39;
 
+// Long books get an extra "pick a range" layer so the chapter grid never
+// becomes an overwhelming wall of circles.
+const GROUP_THRESHOLD = 24; // only books with MORE chapters than this are grouped
+const GROUP_SIZE = 12; // chapters per range
+const MIN_TAIL = 6; // a trailing remainder smaller than this is folded into the last range
+
 function clearList() {
   els.pickerList.innerHTML = "";
+}
+
+/**
+ * Split a book's chapters into [start, end] ranges of GROUP_SIZE. A final
+ * remainder of fewer than MIN_TAIL chapters is appended to the previous range
+ * rather than left as a lonely stub (e.g. Genesis 50 → …37–50, not 49–50).
+ */
+function chapterGroups(total) {
+  const groups = [];
+  let start = 1;
+  while (start <= total) {
+    let end = Math.min(start + GROUP_SIZE - 1, total);
+    const tail = total - end;
+    if (tail > 0 && tail < MIN_TAIL) end = total; // absorb the short tail
+    groups.push([start, end]);
+    start = end + 1;
+  }
+  return groups;
 }
 
 export function closeOverlay() {
@@ -22,14 +46,21 @@ export function closeOverlay() {
   nudgeAutoScroll(); // resume drifting gracefully after the picker closes
 }
 
-/** Render the chapter grid for one book; onPick(bookId, chapter) starts reading. */
-function openChapters(book, onPick) {
-  els.overlayTitle.textContent = book.commonName;
+/** Render a grid of chapter circles for [start, end]; onPick starts reading. */
+function renderChapterGrid(book, start, end, onPick, onBack) {
   clearList();
+
+  if (onBack) {
+    const back = document.createElement("button");
+    back.className = "pick-back";
+    back.textContent = "‹ Ranges";
+    back.addEventListener("click", onBack);
+    els.pickerList.appendChild(back);
+  }
 
   const grid = document.createElement("div");
   grid.className = "chapter-grid";
-  for (let c = 1; c <= book.numberOfChapters; c++) {
+  for (let c = start; c <= end; c++) {
     const cell = document.createElement("button");
     cell.className = "chap-cell";
     cell.textContent = c;
@@ -40,6 +71,37 @@ function openChapters(book, onPick) {
     grid.appendChild(cell);
   }
   els.pickerList.appendChild(grid);
+}
+
+/** Render the range picker for a long book; choosing a range opens its chapters. */
+function openGroups(book, onPick) {
+  clearList();
+
+  const grid = document.createElement("div");
+  grid.className = "group-grid";
+  for (const [start, end] of chapterGroups(book.numberOfChapters)) {
+    const cell = document.createElement("button");
+    cell.className = "group-cell";
+    cell.textContent = `${start}–${end}`;
+    cell.addEventListener("click", () => {
+      renderChapterGrid(book, start, end, onPick, () => openGroups(book, onPick));
+    });
+    grid.appendChild(cell);
+  }
+  els.pickerList.appendChild(grid);
+}
+
+/** Open the chapter selector for one book; onPick(bookId, chapter) starts reading. */
+function openChapters(book, onPick) {
+  els.overlayTitle.textContent = book.commonName;
+
+  // Long books gain an intermediate range layer; short books go straight to
+  // the full chapter grid.
+  if (book.numberOfChapters > GROUP_THRESHOLD) {
+    openGroups(book, onPick);
+  } else {
+    renderChapterGrid(book, 1, book.numberOfChapters, onPick);
+  }
 }
 
 /** Open the testament-grouped book list. */
