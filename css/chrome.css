@@ -87,3 +87,52 @@
   padding: 0.5rem 0.55rem;
 }
 .size-btn:disabled { opacity: 0.3; }
+
+/* The speed button owns the pointer for a hold-drag, so the browser must not
+   try to scroll/gesture from it. */
+#speed-btn { touch-action: none; }
+
+/* ── Auto-scroll speed dial ─────────────────────────────
+   Raised by holding the top-bar speed button; drag up/down to set, release to
+   dismiss. Sits above the top bar (50) but below the picker overlay (100). */
+#speed-dial {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  touch-action: none;
+}
+#speed-dial.visible { display: flex; }
+
+.dial-face { position: relative; width: 172px; height: 172px; }
+.dial-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.dial-track { fill: none; stroke: var(--faint); stroke-width: 6; }
+.dial-arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.dial-readout {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sans);
+  pointer-events: none;
+}
+#speed-dial-val { font-size: 2.1rem; color: var(--fg); line-height: 1; }
+.dial-cap {
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 0.45rem;
+}
