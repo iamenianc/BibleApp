@@ -15,7 +15,7 @@ export const UI_HIDE_DELAY = 2200;
 // grows, the drift speeds up faster than the font size (the ratio is raised to
 // AUTOSCROLL_SPEED_EXP), so small sizes stay gentle while the largest levels
 // accelerate noticeably. The multiplier is still capped at AUTOSCROLL_MAX_MULT.
-export const AUTOSCROLL_SPEED = 12;      // px per second at the smallest size
+export const AUTOSCROLL_SPEED = 20;      // px per second at the smallest size
 export const AUTOSCROLL_SPEED_MIN = 16;  // floor: never drift slower than this (px/s) while moving
 export const AUTOSCROLL_SPEED_EXP = 2;  // >1 makes large sizes scroll steeper than the raw font ratio
 export const AUTOSCROLL_MAX_MULT = 9;    // safety ceiling on the size multiplier
