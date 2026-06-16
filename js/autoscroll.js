@@ -345,11 +345,12 @@ export function initAutoScroll() {
   els.reader.addEventListener("touchmove", onTouchMove, { passive: false });
   els.reader.addEventListener("touchend", onTouchEnd, { passive: true });
 
-  // Don't drift while the tab is hidden.
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) pauseAutoScroll();
-    else nudgeAutoScroll();
-  });
+  // Losing the active window (tab hidden, app backgrounded, or window blurred)
+  // pauses the drift — and it stays paused when the reader returns, rather than
+  // silently resuming on its own. They pick it back up the usual way: scroll
+  // forward or tap.
+  document.addEventListener("visibilitychange", pauseAutoScroll);
+  window.addEventListener("blur", pauseAutoScroll);
 
   resumeAutoScroll();
 }
